@@ -59,6 +59,7 @@ public class LuceneIndexWriter {
 		type = new FieldType();
 		type.setIndexOptions(IndexOptions.DOCS_AND_FREQS);
 		type.setStored(true);
+		type.setTokenized(true);
 		type.setStoreTermVectors(true);
 		addDocuments(jsonObjects,type);
 		finish();
@@ -82,7 +83,7 @@ public class LuceneIndexWriter {
 
 		while((line = br.readLine()) != null){
 			JSONObject jsonObject = (JSONObject) parser.parse(line);
-		/*	for (Object o : arrayObjects) {
+			/*	for (Object o : arrayObjects) {
 				JSONObject person = (JSONObject) o;
 
 				String name = (String) person.get("name");
@@ -105,8 +106,8 @@ public class LuceneIndexWriter {
 			Analyzer analyzer = new WhitespaceAnalyzer();
 			IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 
-			
-			
+
+
 			iwc.setMaxBufferedDocs(10000);
 
 			//Always overwrite the directory
@@ -129,7 +130,7 @@ public class LuceneIndexWriter {
 		for(JSONObject object : (List<JSONObject>) jsonObjects){
 			Document doc = new Document();
 			for(String field : (Set<String>) object.keySet()){
-	/*			Class type = object.get(field).getClass();
+				/*			Class type = object.get(field).getClass();
 				if(type.equals(String.class)){
 					doc.add(new StringField(field, (String)object.get(field), Field.Store.YES));
 				}else if(type.equals(Long.class)){
@@ -142,20 +143,31 @@ public class LuceneIndexWriter {
 				//doc.add(new StoredField("DOCNO", docno));	
 				Class classType = object.get(field).getClass();
 				//System.out.println(classType.getName());
-				if(classType.equals(JSONObject.class) || classType.equals(JSONArray.class)){
+				if(classType.equals(JSONObject.class) ){
+					//	System.out.println("Field :"+field);
 					doc.add(new Field(field, object.get(field).toString(), type));
 				}
+				else if (classType.equals(JSONArray.class)){
+					JSONArray arr = (JSONArray) object.get(field);
+					for(String str : (List<String>) arr){
+						//	System.out.println(str);
+						doc.add(new Field(field, str, type));
+					}
+
+				}
 				else{
+					//System.out.println("Field :"+field);
 					//System.out.println("Field :: "+field+" Value :: "+(String)object.get(field));
 					doc.add(new Field(field, object.get(field).toString(), type));
 				}
-				
+
 			}
 			try {
 				indexWriter.addDocument(doc);
 			} catch (IOException ex) {
 				System.err.println("Error adding documents to the index. " +  ex.getMessage());
 			}
+
 		}
 	}
 
@@ -172,13 +184,13 @@ public class LuceneIndexWriter {
 	}
 
 	public static void main(String[] args) throws IOException {
-		
+
 		String INDEX_PATH = "/Users/Dimple/Documents/workspace/ISRFinalProject1/luceneindex";
 		String FILE = "/Users/Dimple/Documents/workspace/ISRFinalProject1/WebContent/yelp_academic_dataset_business.json";
 		String query = "";
-		
+
 		LuceneIndexWriter writer = new LuceneIndexWriter(INDEX_PATH, FILE);
-		
+
 		try {
 			writer.createIndex();
 		} catch (FileNotFoundException e) {
@@ -191,61 +203,61 @@ public class LuceneIndexWriter {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-        Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_PATH));
-        IndexReader indexReader = DirectoryReader.open(indexDirectory);
-        final IndexSearcher indexSearcher = new IndexSearcher(indexReader);
 
-        //Term t = new Term("full_address", "McClure Dravosburg");
-        
-       // Query query = new TermQuery(t);
-       
-        //PhraseQuery query = new PhraseQuery("full_address", new String[]{"McClure","Dravosburg"});
-        //Builder b = new BooleanQuery.Builder();
-        //b.add("McClure", BooleanClause.Occur.MUST);
-       // BooleanQuery categoryQuery = new BooleanQuery();
-        TermQuery catQuery1 = new TermQuery(new Term("full_address", "McClure"));
-        TermQuery catQuery2 = new TermQuery(new Term("full_address", "Dravosburg"));
-        //categoryQuery.add(new BooleanClause(catQuery1, BooleanClause.Occur.SHOULD));
-        //categoryQuery.add(new BooleanClause(catQuery2, BooleanClause.Occur.SHOULD));
-        //categoryQuery.add(new BooleanClause(categoryQuery, BooleanClause.Occur.MUST));
+		Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_PATH));
+		IndexReader indexReader = DirectoryReader.open(indexDirectory);
+		final IndexSearcher indexSearcher = new IndexSearcher(indexReader);
 
-        BooleanQuery.Builder builder = new BooleanQuery.Builder();
-        
-        builder.add(new BooleanClause(catQuery1, BooleanClause.Occur.SHOULD));
-        builder.add(new BooleanClause(catQuery2, BooleanClause.Occur.SHOULD));
-        TopDocs topDocs = indexSearcher.search(builder.build(), 10);
+		//Term t = new Term("full_address", "McClure Dravosburg");
 
-        //TopDocs topDocs = indexSearcher.search(categoryQuery, 10);
-       
-         System.out.println(topDocs.scoreDocs[0].doc);
-         System.out.println(topDocs.scoreDocs[0]);
-        
-        IndexReader reader = indexSearcher.getIndexReader();
+		// Query query = new TermQuery(t);
 
-        List<IndexableField> fieldList =  indexSearcher.getIndexReader().document(topDocs.scoreDocs[0].doc).getFields();
-        
-        
-        
-        
-        JSONObject json = new JSONObject();
-        for(IndexableField field : fieldList){
-        	json.put(field.name(), field.stringValue());
-        }
-         
-         System.out.println(json.toString());
-      /*   QueryParser parser = new QueryParser(query);
-         
+		//PhraseQuery query = new PhraseQuery("full_address", new String[]{"McClure","Dravosburg"});
+		//Builder b = new BooleanQuery.Builder();
+		//b.add("McClure", BooleanClause.Occur.MUST);
+		// BooleanQuery categoryQuery = new BooleanQuery();
+		TermQuery catQuery1 = new TermQuery(new Term("full_address", "McClure"));
+		TermQuery catQuery2 = new TermQuery(new Term("full_address", "Dravosburg"));
+		//categoryQuery.add(new BooleanClause(catQuery1, BooleanClause.Occur.SHOULD));
+		//categoryQuery.add(new BooleanClause(catQuery2, BooleanClause.Occur.SHOULD));
+		//categoryQuery.add(new BooleanClause(categoryQuery, BooleanClause.Occur.MUST));
+
+		BooleanQuery.Builder builder = new BooleanQuery.Builder();
+
+		builder.add(new BooleanClause(catQuery1, BooleanClause.Occur.SHOULD));
+		builder.add(new BooleanClause(catQuery2, BooleanClause.Occur.SHOULD));
+		TopDocs topDocs = indexSearcher.search(builder.build(), 10);
+
+		//TopDocs topDocs = indexSearcher.search(categoryQuery, 10);
+
+		System.out.println(topDocs.scoreDocs[0].doc);
+		System.out.println(topDocs.scoreDocs[0]);
+
+		IndexReader reader = indexSearcher.getIndexReader();
+
+		List<IndexableField> fieldList =  indexSearcher.getIndexReader().document(topDocs.scoreDocs[0].doc).getFields();
+
+
+
+
+		JSONObject json = new JSONObject();
+		for(IndexableField field : fieldList){
+			json.put(field.name(), field.stringValue());
+		}
+
+		System.out.println(json.toString());
+		/*   QueryParser parser = new QueryParser(query);
+
          Set<String> categories = new HashSet<>();
-         
+
          while(parser.hasTokens()){
         	 String token = parser.nextToken();
         	 if(categories.contains(token)){
-        		 
+
         	 }
          }*/
-         
-         
+
+
 	}
 
 }

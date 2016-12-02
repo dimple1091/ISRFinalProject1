@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -22,9 +23,12 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
@@ -32,10 +36,11 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Attribute;
 import org.apache.lucene.util.CharsRef;
 import org.apache.lucene.wordnet.SynonymMap;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -60,9 +65,12 @@ public class SearchEngine extends HttpServlet {
 
 	IndexWriter indexWriter = null;
 	
-	static String INDEX_PATH = "/Users/Dimple/Documents/workspace/ISRFinalProject1/luceneindex";
-	String FILE = "/Users/Dimple/Documents/workspace/ISRFinalProject1/WebContent/yelp_academic_dataset_business.json";
+	//static String INDEX_PATH = "/Users/Dimple/Documents/workspace/ISRFinalProject1/luceneindex";
+	//String FILE = "/Users/Dimple/Documents/workspace/ISRFinalProject1/WebContent/yelp_academic_dataset_business.json";
 
+	static String INDEX_PATH = "C:\\Users\\Venkatesh\\Desktop\\luceneindex";
+	String FILE = "C:\\Users\\Venkatesh\\Desktop\\yelpjsonindex\\yelp_academic_dataset_business.json";
+	
 	public void init() {
 
 	}
@@ -80,13 +88,13 @@ public class SearchEngine extends HttpServlet {
 		// TODO Auto-generated method stub
 		//doGet(request, response);
 		
-		String[] words = new String[] { "cheap", "brunch", "costly", "restaurants", "xxxx"};
+	/*	String[] words = new String[] { "cheap", "brunch", "costly", "restaurants", "xxxx"};
 		SynonymMap map = new SynonymMap(new FileInputStream("/Users/Dimple/Downloads/prolog/wn_s.pl"));
 		 for (int i = 0; i < words.length; i++) {
 		     String[] synonyms = map.getSynonyms(words[i]);
 		     System.out.println(words[i] + ":" + java.util.Arrays.asList(synonyms).toString());
 		 }
- 
+ */
 		
 		System.out.println("Request Received....");
 		response.setContentType("text/html"); 
@@ -101,40 +109,52 @@ public class SearchEngine extends HttpServlet {
 		Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_PATH));
 		IndexReader indexReader = DirectoryReader.open(indexDirectory);
 		final IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+	
+		
+	    List<IndexableField> fieldList =  indexSearcher.getIndexReader().document(0).getFields();
+        System.out.println(Arrays.toString(indexSearcher.getIndexReader().document(0).getValues("categories")));
+        Set<String> fieldSet = new HashSet<>();
+        for(IndexableField field : fieldList){
+        	fieldSet.add(field.name());
+        }
+
 		
 		QueryParser queryParser=new QueryParser(query);
-		if(queryParser.hasTokens()){
+		BooleanQuery.Builder builder = new BooleanQuery.Builder();
+		 MultiFieldQueryParser multiFieldqueryParser = new MultiFieldQueryParser(fieldSet.toArray(new String[fieldSet.size()]),new WhitespaceAnalyzer());
+		while(queryParser.hasTokens()){
 			String token=queryParser.nextToken();
 			System.out.println("Token :: "+token);
-			if(querySet.contains(token)){
-				String category=token;
-				TermQuery catQuery1 = new TermQuery(new Term("categories", "[\"Restaurants\"]"));
-				BooleanQuery.Builder builder = new BooleanQuery.Builder();
-				builder.add(new BooleanClause(catQuery1, BooleanClause.Occur.SHOULD));
-				TopDocs topDocs = indexSearcher.search(builder.build(), 10);			    
-				//TopDocs topDocs = indexSearcher.search(categoryQuery, 10);
-				JSONObject json=new JSONObject();
-				for(int i=0;i<3;i++){
-					indexSearcher.doc(topDocs.scoreDocs[i].doc);
-					System.out.println(topDocs); 
-					System.out.println(topDocs.scoreDocs[i].score); 
-					   List<IndexableField> fieldList =  indexSearcher.getIndexReader().document(topDocs.scoreDocs[i].doc).getFields();
-				        
-				        for(IndexableField field : fieldList){
-				        	json.put(field.name(), field.stringValue());
-				        }
-				         
-				         System.out.println(json.toString());
-				         request.setAttribute("result",json); 
-				}	
-				JSONObject returnJson = new JSONObject();
-				returnJson.put("result",json.toJSONString());
-				
-				response.getWriter().print(returnJson.toJSONString());
+			try {
+				builder.add(new BooleanClause(multiFieldqueryParser.parse(token), BooleanClause.Occur.FILTER));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
- 
-	}
+		
+		TopDocs topDocs = indexSearcher.search(builder.build(), 10);			    
+		//TopDocs topDocs = indexSearcher.search(categoryQuery, 10);
+		
+		JSONArray jsonArray = new JSONArray();
+		for(ScoreDoc scoreDoc : topDocs.scoreDocs){
+			//indexSearcher.doc(scoreDoc.doc);
+			System.out.println(topDocs); 
+			System.out.println(scoreDoc.score); 
+			   List<IndexableField> fieldList2 =  indexSearcher.getIndexReader().document(scoreDoc.doc).getFields();
+			   JSONObject json=new JSONObject();
+		        for(IndexableField field : fieldList2){
+		        	json.put(field.name(), field.stringValue());
+		        }
+		         jsonArray.add(json);
+		         System.out.println(json.toString());
+		         request.setAttribute("result",json); 
+		}	
+		JSONObject returnJson = new JSONObject();
+		returnJson.put("result",jsonArray.toJSONString());
+		
+		response.getWriter().print(returnJson.toJSONString());
+ 	}
 
 	
 	
