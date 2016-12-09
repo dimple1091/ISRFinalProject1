@@ -225,7 +225,7 @@
     	  }
       }
       
-
+      var area = document.getElementById('text');
       function wordcount() {
 
           /* Below is a regular expression that finds alphanumeric characters
@@ -233,7 +233,7 @@
              Lastly, we have an array that will hold any words matching our pattern */
           var pattern = /\w+/g,
               //string = "I I am am am yes yes.",
-              var area = document.getElementById('text');
+              
               string = area.value;
           matchedWords = string.match(pattern);
 
