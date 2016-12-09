@@ -1,5 +1,6 @@
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.DirectoryReader;
@@ -103,10 +104,8 @@ public class LuceneIndexWriter {
 	public boolean openIndex() {
 		try {
 			Directory dir = FSDirectory.open(Paths.get(indexPath));
-			Analyzer analyzer = new WhitespaceAnalyzer();
+			Analyzer analyzer = new EnglishAnalyzer();
 			IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
-
-
 
 			iwc.setMaxBufferedDocs(10000);
 
@@ -145,7 +144,8 @@ public class LuceneIndexWriter {
 				//System.out.println(classType.getName());
 				if(classType.equals(JSONObject.class) ){
 					//	System.out.println("Field :"+field);
-					doc.add(new Field(field, object.get(field).toString(), type));
+					//doc.add(new Field(field, object.get(field).toString(), type));
+					parseJSONToText(object, field, type, doc);
 				}
 				else if (classType.equals(JSONArray.class)){
 					JSONArray arr = (JSONArray) object.get(field);
@@ -171,6 +171,20 @@ public class LuceneIndexWriter {
 		}
 	}
 
+	private void parseJSONToText(JSONObject object, String field, FieldType type, Document doc) {
+		
+		JSONObject jsonObj = (JSONObject)object.get(field);
+		for(String key : (Set<String>)jsonObj.keySet()){
+			if(jsonObj.get(key).getClass().equals(JSONObject.class)){
+				parseJSONToText(jsonObj, key, type, doc);
+			}
+			else{
+				String value = jsonObj.get(key).toString();
+				doc.add(new Field(key, value, type));
+			}	
+		}
+		
+	}
 	/**
 	 * Write the document to the index and close it
 	 */

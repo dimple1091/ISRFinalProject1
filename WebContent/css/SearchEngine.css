@@ -2,7 +2,7 @@
         background: #555 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAB9JREFUeNpi/P//PwM6YGLAAuCCmpqacC2MRGsHCDAA+fIHfeQbO8kAAAAASUVORK5CYII=);
         font: 15px 'Lucida sans', Arial, Helvetica;
         color: #eee;
-        text-align: center;
+
     }
     
     a {
@@ -41,7 +41,7 @@
     }
     
     .form-wrapper input {
-        width: 330px;
+        width: 325px;
         height: 20px;
         padding: 10px 5px;
         float: left;    

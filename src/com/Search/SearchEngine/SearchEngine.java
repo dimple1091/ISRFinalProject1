@@ -41,6 +41,7 @@ import org.json.simple.JSONObject;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -79,6 +80,7 @@ public class SearchEngine extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		doPost(request,response);
 	}
 
 	/**
@@ -121,7 +123,7 @@ public class SearchEngine extends HttpServlet {
 		
 		QueryParser queryParser=new QueryParser(query);
 		BooleanQuery.Builder builder = new BooleanQuery.Builder();
-		 MultiFieldQueryParser multiFieldqueryParser = new MultiFieldQueryParser(fieldSet.toArray(new String[fieldSet.size()]),new WhitespaceAnalyzer());
+		 MultiFieldQueryParser multiFieldqueryParser = new MultiFieldQueryParser(fieldSet.toArray(new String[fieldSet.size()]),new EnglishAnalyzer());
 		while(queryParser.hasTokens()){
 			String token=queryParser.nextToken();
 			System.out.println("Token :: "+token);
@@ -151,9 +153,9 @@ public class SearchEngine extends HttpServlet {
 		         request.setAttribute("result",json); 
 		}	
 		JSONObject returnJson = new JSONObject();
-		returnJson.put("result",jsonArray.toJSONString());
+		returnJson.put("result",jsonArray);
 		
-		response.getWriter().print(returnJson.toJSONString());
+		response.getWriter().print(returnJson.toString());
  	}
 
 	
