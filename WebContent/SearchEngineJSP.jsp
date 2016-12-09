@@ -157,7 +157,7 @@
     	});
      */
       
-      var area = document.getElementById('text');
+      
 
       function callServlet() {
     	  
@@ -226,7 +226,6 @@
       }
       
 
-      //var wordcountarray = [];
       function wordcount() {
 
           /* Below is a regular expression that finds alphanumeric characters
@@ -234,6 +233,7 @@
              Lastly, we have an array that will hold any words matching our pattern */
           var pattern = /\w+/g,
               //string = "I I am am am yes yes.",
+              var area = document.getElementById('text');
               string = area.value;
           matchedWords = string.match(pattern);
 
@@ -271,7 +271,7 @@
       var counts = wordcount();
      // alert(JSON.stringify(counts));
 
-      var wordcountarray = [{
+    /*  var wordcountarray = [{
           "text": "How",
           "size": 90
       }, {
@@ -280,7 +280,13 @@
       }, {
           "text": "you",
           "size": 90
-      }];
+      }];*/
+      
+     var wordcountarray = [];
+      
+      for(key in counts){
+   		wordcountarray.push({"text" : key, "size" : (counts[key])*10})
+   	  }
       
       
       var fill = d3.scale.category20();
