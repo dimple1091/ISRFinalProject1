@@ -194,7 +194,6 @@
     		var review_count = place.review_count;
     		var stars = place.stars;
 
-    		
   	      var divElement = "<div class=\"col-md-8 margin30\">";
   	    	divElement +=  		"<div class=\"templatemo_homemid_right shadow\">";
   	    	divElement +=  			 "<div class=\"box\">";
@@ -214,6 +213,7 @@
   	    	//divElement +=          		  		 "<img src=\"images/stars.png\" />";
   	    	divElement +=          		  	" "+review_count + " reviews";
   	    	divElement +=		          		 "<p>"+place.full_address+"</p>";
+  	    	divElement +=		          		 "<p> Price Range : "+"$".repeat(place["Price Range"])+"</p>";
   	    	divElement +=          		  "</div>";
   	    	divElement +=       		  "<div class=\"clear\"></div>";
   	    	divElement += 			"</div>";

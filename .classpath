@@ -15,5 +15,9 @@
 	<classpathentry kind="lib" path="C:/Users/Venkatesh/eclipse/sources/jars/lucene-wordnet-3.2.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Venkatesh/eclipse/sources/jars/lucene-queryparser-5.3.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v8.5"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Lucene"/>
+	<classpathentry kind="lib" path="C:/Users/Venkatesh/eclipse/sources/lucene-5.3.1/queries/lucene-queries-5.3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Venkatesh/eclipse/sources/lucene-5.3.1/spatial/lucene-spatial-5.3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Venkatesh/eclipse/sources/lucene-5.3.1/spatial/lib/spatial4j-0.4.1.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

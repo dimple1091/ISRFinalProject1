@@ -50,6 +50,7 @@ import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionLengthAttribute;
 import org.apache.lucene.analysis.tokenattributes.TermToBytesRefAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
+import org.apache.lucene.document.Document;
 
 /**
  * Servlet implementation class SearchEngine
@@ -128,25 +129,37 @@ public class SearchEngine extends HttpServlet {
 			String token=queryParser.nextToken();
 			System.out.println("Token :: "+token);
 			try {
-				builder.add(new BooleanClause(multiFieldqueryParser.parse(token), BooleanClause.Occur.FILTER));
+				builder.add(new BooleanClause(multiFieldqueryParser.parse(token), BooleanClause.Occur.SHOULD));
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		
-		TopDocs topDocs = indexSearcher.search(builder.build(), 10);			    
+		TopDocs topDocs = indexSearcher.search(builder.build(), 30);			    
 		//TopDocs topDocs = indexSearcher.search(categoryQuery, 10);
 		
 		JSONArray jsonArray = new JSONArray();
 		for(ScoreDoc scoreDoc : topDocs.scoreDocs){
 			//indexSearcher.doc(scoreDoc.doc);
-			System.out.println(topDocs); 
+			//System.out.println(topDocs); 
 			System.out.println(scoreDoc.score); 
-			   List<IndexableField> fieldList2 =  indexSearcher.getIndexReader().document(scoreDoc.doc).getFields();
+			Document doc = indexSearcher.getIndexReader().document(scoreDoc.doc);
+			   List<IndexableField> fieldList2 =  doc.getFields();
 			   JSONObject json=new JSONObject();
 		        for(IndexableField field : fieldList2){
-		        	json.put(field.name(), field.stringValue());
+		        	String[] values = doc.getValues(field.name());
+		        	if(values.length > 1){
+		        		JSONArray jsonArray2 =  new JSONArray();
+		        		for(String value : values){
+		        			jsonArray2.add(value);
+		        		}
+		        		
+		        		json.put(field.name(),jsonArray2);
+		        	}
+		        	else{
+		        		json.put(field.name(),values[0]);
+		        	}
 		        }
 		         jsonArray.add(json);
 		         System.out.println(json.toString());
