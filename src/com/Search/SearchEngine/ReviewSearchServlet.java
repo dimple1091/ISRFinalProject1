@@ -84,6 +84,7 @@ public class ReviewSearchServlet extends HttpServlet {
 		TopDocs topDocs;
 		try {
 			topDocs = indexSearcher.search(parser.parse(business_id), 20);
+			
 			JSONArray reviewJSONArray = new JSONArray();
 			for(ScoreDoc scoredoc : topDocs.scoreDocs){
 				Document doc = indexReader.document(scoredoc.doc);
@@ -114,7 +115,7 @@ public class ReviewSearchServlet extends HttpServlet {
 			returnJSON.put("wordcloud", builder.toString());
 			returnJSON.put("reviews", reviewJSONArray.toString());
 			returnJSON.put("pos", reviewsArray[0]);
-			returnJSON.put("pos", reviewsArray[1]);
+			returnJSON.put("neg", reviewsArray[1]);
 			System.out.println(returnJSON.toString());
 			response.getWriter().print(returnJSON.toString());
 
@@ -128,15 +129,14 @@ public class ReviewSearchServlet extends HttpServlet {
 	public int[] getSentiment(JSONArray reviewsJSONArray){
 		 int neg=0;
 		 int pos=0;
-		 NLP.init();
 	        for(String review : (List<String>)reviewsJSONArray) {
-	        	
-	            System.out.println(review + " : " + NLP.findSentiment(review));
-	            if(NLP.findSentiment(review)==1){
-	            	neg=neg+1;
-	            }
-	            if(NLP.findSentiment(review)>1){
+	        	 int sentiment = NLP.findSentiment(review);
+	            System.out.println(review + " : " +sentiment);
+	            if(sentiment<=1){
 	            	pos=pos+1;
+	            }
+	            if(sentiment>1){
+	            	neg=neg+1;
 	            }
 	             
 	        }

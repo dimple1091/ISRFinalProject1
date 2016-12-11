@@ -226,7 +226,7 @@
       }
       
       function openNewPage(){
-    	  window.open("test.jsp");
+    	  window.open("subsection.jsp");
       }
       
       var area = document.getElementById('text');
