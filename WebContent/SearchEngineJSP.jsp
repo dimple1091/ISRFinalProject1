@@ -38,7 +38,28 @@
 
 <style>
 
-  
+  .nav3 {
+    height: auto;
+    width: auto;
+    float: right;
+    padding-left: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #333333;
+    magin-top: 0;
+	vertical-align : top;
+     display:inline-block;
+     position : relative;
+     top : -80px;
+ }
+.images_icon{
+	display:inline-block;
+	margin-right: 6px;
+	
+	max-width:50%;
+  	max-height:50%;
+ }
+
 </style>
 
    </head>
@@ -193,13 +214,13 @@
     		var name = place.name;
     		var review_count = place.review_count;
     		var stars = place.stars;
-
+	//alert(place.tips);
   	      var divElement = "<div class=\"col-md-8 margin30\">";
   	    	divElement +=  		"<div class=\"templatemo_homemid_right shadow\">";
   	    	divElement +=  			 "<div class=\"box\">";
-  	    	divElement +=   			 "<div class=\"icon\">";
-  	    	divElement +=  					 "<img style=\"margin-top:0\" src=\"images/logo.jpg\" alt=\"templatemo home icon 1\" />";
-  	    	divElement += 			      "</div>";
+  	    	//divElement +=   			 "<div class=\"icon\">";
+  	    	//divElement +=  					 "<img style=\"margin-top:0\" src=\"images/logo.jpg\" alt=\"templatemo home icon 1\" />";
+  	    	//divElement += 			      "</div>";
   	    	divElement +=       		  "<div class=\"text\">";
   	    	divElement +=       		  		"<a href=\"javascript:openNewPage()\"><div class=\"title\" style=\"font-family:serif;color:#4C4CFF\">";
   	    	divElement +=            	   			"<b>"+name+"</b>";
@@ -215,7 +236,14 @@
   	    	divElement +=		          		 "<p>"+place.full_address+"</p>";
   	    	divElement +=		          		 "<p> Price Range : "+"$".repeat(place["Price Range"])+"</p>";
   	    	divElement +=          		  "</div>";
+ 	    //	divElement +=   			 "<div  class=\"nav3\">";
+  	    	//divElement +=  					 "<img style=\"width:100px;height:100px;\" class=\"images_icon\"  src=\"yelp/_i6oyu8cWLCTJNICHmyqDg.jpg\" alt=\"templatemo home icon 1\" />";
+  	    	//divElement +=  					 "<img style=\"width:100px;height:100px;\" class=\"images_icon\"  src=\"yelp/_i6oyu8cWLCTJNICHmyqDg.jpg\" alt=\"templatemo home icon 1\" />";
+  	    	//divElement +=  					 "<img style=\"width:100px;height:100px;\" class=\"images_icon\" src=\"yelp/_IT8JEaPKpmnvMW_QMlVdA.jpg\" alt=\"templatemo home icon 1\" />";
+  	    	//divElement +=  					 "<img style=\"width:100px;height:100px;\" class=\"images_icon\" src=\"yelp/_j_bQytGo3Y8_9d5Tpb2VA.jpg\" alt=\"templatemo home icon 1\" />";
+  	    	//divElement += 			      "</div>";
   	    	divElement +=       		  "<div class=\"clear\"></div>";
+ 
   	    	divElement += 			"</div>";
   	    	divElement +=		"</div>";
   	    	divElement += "</div>";
