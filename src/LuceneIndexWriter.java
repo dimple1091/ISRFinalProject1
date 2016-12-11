@@ -1,8 +1,10 @@
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.*;
+import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexReader;
@@ -11,15 +13,28 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.BooleanQuery.Builder;
+import org.apache.lucene.spatial.SpatialStrategy;
+import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
+import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
+import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
+import org.apache.lucene.spatial.query.SpatialArgs;
+import org.apache.lucene.spatial.query.SpatialOperation;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryCachingPolicy;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
@@ -30,10 +45,20 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Shape;
+
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -46,11 +71,46 @@ public class LuceneIndexWriter {
 
 	String jsonFilePath = "";
 
+	String tipsjsonFilePath = "";
 	IndexWriter indexWriter = null;
 
-	public LuceneIndexWriter(String indexPath, String jsonFilePath) {
+	public Set<String> cats = new HashSet<>();
+	
+	public Map<String,List<String>> tipsMap = new HashMap<>();
+	
+	private SpatialContext ctx;
+	SpatialStrategy strategy;
+	
+	public LuceneIndexWriter(String indexPath, String jsonFilePath, String tipsjsonFilePath) throws IOException, ParseException {
 		this.indexPath = indexPath;
 		this.jsonFilePath = jsonFilePath;
+		this.tipsjsonFilePath = tipsjsonFilePath;
+		
+		BufferedReader br = new BufferedReader(new FileReader(new File(tipsjsonFilePath)));
+		String line = null;
+
+		while((line = br.readLine()) != null){
+			JSONParser parser = new JSONParser();
+			JSONObject jsonobj = (JSONObject)parser.parse(line);
+			String businessId = jsonobj.get("business_id").toString();
+			String tip = jsonobj.get("text").toString();
+			List<String> tipsList = tipsMap.get(businessId);
+			if(null != tipsList){
+				tipsList.add(tip);
+				
+			}
+			else{
+				tipsList = new ArrayList<>();
+				tipsList.add(tip);
+				tipsMap.put(businessId, tipsList);
+			}
+			
+		}
+			
+		this.ctx = SpatialContext.GEO;
+
+		SpatialPrefixTree grid = new GeohashPrefixTree(ctx, 11);
+		this.strategy = new RecursivePrefixTreeStrategy(grid, "location");
 	}
 
 	public void createIndex() throws FileNotFoundException, IOException, ParseException{
@@ -150,7 +210,11 @@ public class LuceneIndexWriter {
 				else if (classType.equals(JSONArray.class)){
 					JSONArray arr = (JSONArray) object.get(field);
 					for(String str : (List<String>) arr){
-						//	System.out.println(str);
+					//	System.out.println(str);
+						if(field.equals("categories")){
+							cats.add(str);
+						}
+						
 						doc.add(new Field(field, str, type));
 					}
 
@@ -162,13 +226,34 @@ public class LuceneIndexWriter {
 				}
 
 			}
+			
+			
+			String business_id = doc.get("business_id");
+			List<String> tips = this.tipsMap.get(business_id);
+			if(null != tips){
+				for(String tip: tips){
+					doc.add(new Field("tips", tip, type));
+				}
+			}
+			 newGeoDocument(doc, ctx.makePoint((double)object.get("longitude"),(double)object.get("latitude")), type);
 			try {
 				indexWriter.addDocument(doc);
 			} catch (IOException ex) {
 				System.err.println("Error adding documents to the index. " +  ex.getMessage());
 			}
-
+	
 		}
+		
+	}
+	
+	private Document newGeoDocument(Document doc, Shape shape, FieldType type) {
+
+		for(IndexableField f : strategy.createIndexableFields(shape)) {
+			doc.add(f);
+		}
+
+		doc.add(new StoredField(strategy.getFieldName(), ctx.toString(shape)));
+		return doc;
 	}
 
 	private void parseJSONToText(JSONObject object, String field, FieldType type, Document doc) {
@@ -185,6 +270,7 @@ public class LuceneIndexWriter {
 		}
 		
 	}
+
 	/**
 	 * Write the document to the index and close it
 	 */
@@ -197,15 +283,15 @@ public class LuceneIndexWriter {
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
-
-		String INDEX_PATH = "/Users/Dimple/Documents/workspace/ISRFinalProject1/luceneindex";
-		String FILE = "/Users/Dimple/Documents/workspace/ISRFinalProject1/WebContent/yelp_academic_dataset_business.json";
+	public static void main(String[] args) throws IOException, org.apache.lucene.queryparser.classic.ParseException, ParseException {
+		
+		String INDEX_PATH = "C:\\Users\\Venkatesh\\Desktop\\luceneindex";
+		String FILE = "C:\\Users\\Venkatesh\\Desktop\\yelpjsonindex\\yelp_academic_dataset_business.json";
+		String TIPS_FILE = "C:\\Users\\Venkatesh\\Desktop\\dataset\\dataset\\yelp_academic_dataset_tip.json";
 		String query = "";
-
-		LuceneIndexWriter writer = new LuceneIndexWriter(INDEX_PATH, FILE);
-
-		try {
+		
+		LuceneIndexWriter writer = new LuceneIndexWriter(INDEX_PATH, FILE, TIPS_FILE);
+		/*try {
 			writer.createIndex();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -216,52 +302,89 @@ public class LuceneIndexWriter {
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}*/
+		
+	/*	Iterator<String> itr = writer.cats.iterator();
+		
+		while(itr.hasNext()){
+			System.out.println(itr.next());
 		}
+		*/
+		
+		
+		
+        Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_PATH));
+        IndexReader indexReader = DirectoryReader.open(indexDirectory);
+        final IndexSearcher indexSearcher = new IndexSearcher(indexReader);
 
-		Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_PATH));
-		IndexReader indexReader = DirectoryReader.open(indexDirectory);
-		final IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+        
+        Document doc = indexSearcher.getIndexReader().document(7);
+        List<IndexableField> fieldList = doc.getFields();
+        System.out.println(Arrays.toString(doc.getValues("categories")));
+        JSONObject json = new JSONObject();
+        Set<String> fieldSet = new HashSet<>();
+        for(IndexableField field : fieldList){
+        	System.out.println(field.name()+"  "+field.fieldType());
+        	String[] values = doc.getValues(field.name());
+        	if(values.length > 1){
+        		JSONArray jsonArray =  new JSONArray();
+        		jsonArray.add(Arrays.asList(values));
+        		json.put(field.name(),jsonArray);
+        	}
+        	else{
+        		json.put(field.name(),values[0]);
+        	}
+        	
+        	fieldSet.add(field.name());
+        }
+        
+        //MultiFieldQueryParser queryParser = new MultiFieldQueryParser(fieldSet.toArray(new String[fieldSet.size()]),new WhitespaceAnalyzer());
+        MultiFieldQueryParser queryParser = new MultiFieldQueryParser(new String[]{"Price Range"},new WhitespaceAnalyzer());
+        //Term t = new Term("full_address", "McClure Dravosburg");
+        MultiFieldQueryParser queryParser2 = new MultiFieldQueryParser(fieldSet.toArray(new String[fieldSet.size()]),new WhitespaceAnalyzer());
+       // Query query = new TermQuery(t);
+       
+        //PhraseQuery query = new PhraseQuery("full_address", new String[]{"McClure","Dravosburg"});
+        //Builder b = new BooleanQuery.Builder();
+        //b.add("McClure", BooleanClause.Occur.MUST);
+       // BooleanQuery categoryQuery = new BooleanQuery();
+       // TermQuery catQuery1 = new TermQuery(new Term("full_address", "McClure"));
+      //  TermQuery catQuery2 = new TermQuery(new Term("full_address", "Dravosburg"));
+        TermQuery catQuery2 = new TermQuery(new Term("categories", "Fast Food"));
+       // PhraseQuery catQuery1 = new PhraseQuery("categories", new String[]{"Restaurants"});
+        //categoryQuery.add(new BooleanClause(catQuery1, BooleanClause.Occur.SHOULD));
+        //categoryQuery.add(new BooleanClause(catQuery2, BooleanClause.Occur.SHOULD));
+        //categoryQuery.add(new BooleanClause(categoryQuery, BooleanClause.Occur.MUST));
+       
+   
+        
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        
+      // builder.add(new BooleanClause(catQuery1, BooleanClause.Occur.FILTER));
+        //builder.add(new BooleanClause(catQuery2, BooleanClause.Occur.FILTER));
+        //builder.add(new BooleanClause(queryParser.parse("Dravosburg"), BooleanClause.Occur.FILTER));
+        builder.add(new BooleanClause(queryParser.parse("1"), BooleanClause.Occur.FILTER));
+        builder.add(new BooleanClause(queryParser2.parse("restaur"), BooleanClause.Occur.FILTER));
+    //    builder.add(new BooleanClause(queryParser.parse("nearby"), BooleanClause.Occur.SHOULD));
+  //      builder.add(new BooleanClause(queryParser.parse("Food"), BooleanClause.Occur.FILTER));
+        TopDocs topDocs = indexSearcher.search(builder.build(), 20);
 
-		//Term t = new Term("full_address", "McClure Dravosburg");
+        //TopDocs topDocs = indexSearcher.search(categoryQuery, 10);
+       for(ScoreDoc scoredoc : topDocs.scoreDocs){
+    	   System.out.print(scoredoc.doc+" ");
+       }
+        // System.out.println(topDocs.scoreDocs[0].doc);
+        // System.out.println(topDocs.scoreDocs[0]);
+        
+        IndexReader reader = indexSearcher.getIndexReader();
 
-		// Query query = new TermQuery(t);
-
-		//PhraseQuery query = new PhraseQuery("full_address", new String[]{"McClure","Dravosburg"});
-		//Builder b = new BooleanQuery.Builder();
-		//b.add("McClure", BooleanClause.Occur.MUST);
-		// BooleanQuery categoryQuery = new BooleanQuery();
-		TermQuery catQuery1 = new TermQuery(new Term("full_address", "McClure"));
-		TermQuery catQuery2 = new TermQuery(new Term("full_address", "Dravosburg"));
-		//categoryQuery.add(new BooleanClause(catQuery1, BooleanClause.Occur.SHOULD));
-		//categoryQuery.add(new BooleanClause(catQuery2, BooleanClause.Occur.SHOULD));
-		//categoryQuery.add(new BooleanClause(categoryQuery, BooleanClause.Occur.MUST));
-
-		BooleanQuery.Builder builder = new BooleanQuery.Builder();
-
-		builder.add(new BooleanClause(catQuery1, BooleanClause.Occur.SHOULD));
-		builder.add(new BooleanClause(catQuery2, BooleanClause.Occur.SHOULD));
-		TopDocs topDocs = indexSearcher.search(builder.build(), 10);
-
-		//TopDocs topDocs = indexSearcher.search(categoryQuery, 10);
-
-		System.out.println(topDocs.scoreDocs[0].doc);
-		System.out.println(topDocs.scoreDocs[0]);
-
-		IndexReader reader = indexSearcher.getIndexReader();
-
-		List<IndexableField> fieldList =  indexSearcher.getIndexReader().document(topDocs.scoreDocs[0].doc).getFields();
-
-
-
-
-		JSONObject json = new JSONObject();
-		for(IndexableField field : fieldList){
-			json.put(field.name(), field.stringValue());
-		}
-
-		System.out.println(json.toString());
-		/*   QueryParser parser = new QueryParser(query);
-
+        //List<IndexableField> fieldList =  indexSearcher.getIndexReader().document(topDocs.scoreDocs[0].doc).getFields();
+        
+   
+        
+         System.out.println(json.toString());
+      /*   QueryParser parser = new QueryParser(query);
+         
          Set<String> categories = new HashSet<>();
 
          while(parser.hasTokens()){
@@ -270,8 +393,70 @@ public class LuceneIndexWriter {
 
         	 }
          }*/
-
-
+ 
+         //writer.search(40.4422268, -79.9552743, 1, indexSearcher);
+         writer.filterSearch(indexSearcher);
 	}
 
+	public void search(Double lat, Double lng, int distance,IndexSearcher searcher ) throws IOException, org.apache.lucene.queryparser.classic.ParseException{
+
+		Point p = ctx.makePoint(lng, lat);
+		SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects,
+				ctx.makeCircle(lng, lat, DistanceUtils.dist2Degrees(distance, DistanceUtils.EARTH_EQUATORIAL_RADIUS_MI)));
+		Filter filter = strategy.makeFilter(args);
+		
+		ValueSource valueSource = strategy.makeDistanceValueSource(p);
+		Sort distSort = new Sort(valueSource.getSortField(false)).rewrite(searcher);
+
+		int limit = 25;
+		
+		 org.apache.lucene.queryparser.classic.QueryParser parser = new org.apache.lucene.queryparser.classic.QueryParser("categories", new EnglishAnalyzer());
+		
+		  BooleanQuery.Builder builder = new BooleanQuery.Builder();
+		  builder.add(new BooleanClause(parser.parse("restaurants"), BooleanClause.Occur.FILTER));
+		  builder.add(new BooleanClause(new MatchAllDocsQuery(), BooleanClause.Occur.FILTER));
+		
+		//TopDocs topDocs = searcher.search(new MatchAllDocsQuery(), filter, limit, distSort);
+		  TopDocs topDocs = searcher.search(builder.build(), filter, limit, distSort);
+		ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+
+		for(ScoreDoc s: scoreDocs) {
+
+			Document doc = searcher.doc(s.doc);
+			Point docPoint = (Point) ctx.readShape(doc.get(strategy.getFieldName()));
+			double docDistDEG = ctx.getDistCalc().distance(args.getShape().getCenter(), docPoint);
+			double docDistInKM = DistanceUtils.degrees2Dist(docDistDEG, DistanceUtils.EARTH_EQUATORIAL_RADIUS_MI);
+			System.out.println(doc.get("business_id") + "\t" + doc.get("name") + "\t" + docDistInKM + " miles ");
+
+		}
+
+	
+	}
+	public void filterSearch(IndexSearcher indexSearcher) throws org.apache.lucene.queryparser.classic.ParseException, IOException{
+		
+	QueryParser parser = new QueryParser("Price Range", new KeywordAnalyzer());
+	QueryParser parser3 = new QueryParser("Price Range", new StandardAnalyzer());
+		 QueryParser parser2 = new QueryParser("categories", new EnglishAnalyzer());
+
+		 BooleanQuery.Builder innerBooleanQueryBuilder = new BooleanQuery.Builder();
+		 innerBooleanQueryBuilder.add(new BooleanClause(parser.parse(String.valueOf(1)), BooleanClause.Occur.SHOULD));
+		innerBooleanQueryBuilder.add(new BooleanClause(parser3.parse("3"), BooleanClause.Occur.SHOULD));
+		 
+		 
+		 BooleanQuery.Builder builder = new BooleanQuery.Builder();
+		// builder.add(new BooleanClause(new MatchAllDocsQuery(), BooleanClause.Occur.SHOULD));
+		
+		 builder.add(new TermQuery(new Term("categories", "restaur")), BooleanClause.Occur.FILTER);
+		// builder.add(new BooleanClause(parser.parse("1 OR 2"), BooleanClause.Occur.MUST));
+		 builder.add(new BooleanClause(innerBooleanQueryBuilder.build(), BooleanClause.Occur.FILTER));
+	        
+
+	        
+	        TopDocs topDocs = indexSearcher.search(builder.build(), 20);
+	        
+	        for(ScoreDoc scoredoc : topDocs.scoreDocs) {
+	        	System.out.print(scoredoc.doc+" ");
+	        }
+	}
+	
 }
