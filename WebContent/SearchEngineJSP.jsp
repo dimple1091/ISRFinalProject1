@@ -201,7 +201,7 @@
   	    	divElement +=  					 "<img style=\"margin-top:0\" src=\"images/logo.jpg\" alt=\"templatemo home icon 1\" />";
   	    	divElement += 			      "</div>";
   	    	divElement +=       		  "<div class=\"text\">";
-  	    	divElement +=       		  		"<a href=\"\"><div class=\"title\" style=\"font-family:serif;color:#4C4CFF\">";
+  	    	divElement +=       		  		"<a href=\"javascript:openNewPage()\"><div class=\"title\" style=\"font-family:serif;color:#4C4CFF\">";
   	    	divElement +=            	   			"<b>"+name+"</b>";
   	    	divElement +=		         		 "</div></a>";
   	    	for(j=0; j < parseInt(stars); j++){
@@ -223,6 +223,10 @@
   	    	divTag.innerHTML  += divElement;	
   	    	
     	  }
+      }
+      
+      function openNewPage(){
+    	  window.open("test.jsp");
       }
       
       var area = document.getElementById('text');
@@ -362,7 +366,7 @@
 
          function success(position)
          {
-			alert(position.coords.longitude+" , "+position.coords.latitude);
+			//alert(position.coords.longitude+" , "+position.coords.latitude);
              //document.getElementById('long').value = position.coords.longitude;
             // document.getElementById('lat').value = position.coords.latitude
          }
@@ -381,7 +385,7 @@
         	        $("#buttonId").click();
         	    }
         	});
-        // initGeolocation();
+         initGeolocation();
       </script>
    </body>
 </html>

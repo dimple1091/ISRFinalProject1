@@ -129,7 +129,7 @@ public class SearchEngine extends HttpServlet {
 			String token=queryParser.nextToken();
 			System.out.println("Token :: "+token);
 			try {
-				builder.add(new BooleanClause(multiFieldqueryParser.parse(token), BooleanClause.Occur.SHOULD));
+				builder.add(new BooleanClause(multiFieldqueryParser.parse(token), BooleanClause.Occur.FILTER));
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -3,6 +3,7 @@ package com.Search.SearchEngine;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Paths;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -27,6 +28,8 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 /**
  * Servlet implementation class ReviewSearchServlet
@@ -46,6 +49,11 @@ public class ReviewSearchServlet extends HttpServlet {
 	public ReviewSearchServlet() {
 		super();
 		// TODO Auto-generated constructor stub
+	}
+	
+	@Override
+	public void init() throws ServletException {
+		NLP.init();
 	}
 
 	/**
@@ -76,11 +84,12 @@ public class ReviewSearchServlet extends HttpServlet {
 		TopDocs topDocs;
 		try {
 			topDocs = indexSearcher.search(parser.parse(business_id), 20);
-
+			JSONArray reviewJSONArray = new JSONArray();
 			for(ScoreDoc scoredoc : topDocs.scoreDocs){
 				Document doc = indexReader.document(scoredoc.doc);
 
 				String review = doc.get("text");
+				reviewJSONArray.add(review);
 				StandardTokenizer tockenizer = new StandardTokenizer();
 
 				tockenizer.setReader(new StringReader(review));
@@ -97,13 +106,41 @@ public class ReviewSearchServlet extends HttpServlet {
 			}
 			 
 			System.out.println(builder.toString());
-			response.getWriter().print(builder.toString());
+			
+			int[] reviewsArray = getSentiment(reviewJSONArray);
+			
+			JSONObject returnJSON = new JSONObject();
+			
+			returnJSON.put("wordcloud", builder.toString());
+			returnJSON.put("reviews", reviewJSONArray.toString());
+			returnJSON.put("pos", reviewsArray[0]);
+			returnJSON.put("pos", reviewsArray[1]);
+			System.out.println(returnJSON.toString());
+			response.getWriter().print(returnJSON.toString());
 
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+	}
+	
+	public int[] getSentiment(JSONArray reviewsJSONArray){
+		 int neg=0;
+		 int pos=0;
+		 NLP.init();
+	        for(String review : (List<String>)reviewsJSONArray) {
+	        	
+	            System.out.println(review + " : " + NLP.findSentiment(review));
+	            if(NLP.findSentiment(review)==1){
+	            	neg=neg+1;
+	            }
+	            if(NLP.findSentiment(review)>1){
+	            	pos=pos+1;
+	            }
+	             
+	        }
+	        return new int[]{pos,neg};
 	}
 
 }
