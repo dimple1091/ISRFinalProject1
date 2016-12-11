@@ -19,5 +19,8 @@
 	<classpathentry kind="lib" path="C:/Users/Venkatesh/eclipse/sources/lucene-5.3.1/queries/lucene-queries-5.3.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Venkatesh/eclipse/sources/lucene-5.3.1/spatial/lucene-spatial-5.3.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Venkatesh/eclipse/sources/lucene-5.3.1/spatial/lib/spatial4j-0.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Venkatesh/eclipse/sources/jars/stanford-nlp/ejml-0.23.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Venkatesh/eclipse/sources/jars/stanford-nlp/stanford-corenlp-3.7.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Venkatesh/eclipse/sources/jars/stanford-nlp/stanford-corenlp-3.7.0-models.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
