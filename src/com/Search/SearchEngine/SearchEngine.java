@@ -96,8 +96,8 @@ public class SearchEngine extends HttpServlet {
 		 for (int i = 0; i < words.length; i++) {
 		     String[] synonyms = map.getSynonyms(words[i]);
 		     System.out.println(words[i] + ":" + java.util.Arrays.asList(synonyms).toString());
-		 }
- */
+		 }*/
+ 
 		
 		System.out.println("Request Received....");
 		response.setContentType("text/html"); 
