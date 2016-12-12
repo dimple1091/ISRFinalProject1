@@ -283,6 +283,9 @@ public class LuceneIndexWriter {
 			else{
 				String value = jsonObj.get(key).toString();
 				doc.add(new Field(key, value, type));
+				if(value.equals("true")){
+					doc.add(new Field("attributes", value, type));
+				}
 			}	
 		}
 		
