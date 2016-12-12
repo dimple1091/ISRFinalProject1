@@ -6,6 +6,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.*;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -221,6 +222,20 @@ public class LuceneIndexWriter {
 					}
 
 				}
+				else if(field.equals("stars")){
+					FieldType DOUBLE_FIELD_TYPE_STORED_SORTED = new FieldType();
+					  DOUBLE_FIELD_TYPE_STORED_SORTED.setTokenized(true);
+					    DOUBLE_FIELD_TYPE_STORED_SORTED.setOmitNorms(true);
+					    DOUBLE_FIELD_TYPE_STORED_SORTED.setIndexOptions(IndexOptions.DOCS);
+					    DOUBLE_FIELD_TYPE_STORED_SORTED
+					        .setNumericType(FieldType.NumericType.DOUBLE);
+					    DOUBLE_FIELD_TYPE_STORED_SORTED.setStored(true);
+					    DOUBLE_FIELD_TYPE_STORED_SORTED.setDocValuesType(DocValuesType.NUMERIC);
+					    DOUBLE_FIELD_TYPE_STORED_SORTED.freeze();
+					//doc.add(new Field ("stars", object.get(field).toString(), Field.Store.NO, Field.Index.NOT_ANALYZED));
+					    doc.add(new DoubleField ("stars",Double.parseDouble(object.get(field).toString())  , DOUBLE_FIELD_TYPE_STORED_SORTED));
+					//doc.add(new SortedDocValuesField("stars", new BytesRef(object.get(field).toString())));
+				}
 				else{
 					//System.out.println("Field :"+field);
 					//System.out.println("Field :: "+field+" Value :: "+(String)object.get(field));
@@ -293,7 +308,7 @@ public class LuceneIndexWriter {
 		String query = "";
 		
 		LuceneIndexWriter writer = new LuceneIndexWriter(INDEX_PATH, FILE, TIPS_FILE);
-		/*try {
+	/*	try {
 			writer.createIndex();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -417,7 +432,7 @@ public class LuceneIndexWriter {
 		  BooleanQuery.Builder builder = new BooleanQuery.Builder();
 		  builder.add(new BooleanClause(parser.parse("restaurants"), BooleanClause.Occur.FILTER));
 		  builder.add(new BooleanClause(new MatchAllDocsQuery(), BooleanClause.Occur.FILTER));
-		
+		  
 		//TopDocs topDocs = searcher.search(new MatchAllDocsQuery(), filter, limit, distSort);
 		  TopDocs topDocs = searcher.search(builder.build(), filter, limit, distSort);
 		ScoreDoc[] scoreDocs = topDocs.scoreDocs;
