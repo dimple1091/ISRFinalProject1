@@ -113,11 +113,11 @@ public class RichQuery {
 				attrPresent = synonymsList(token);
 				attrPresent.add(token);
 				attrPresent.retainAll(attributes);
-				if(synonymsList("cheap").contains(token)){
+				if(synonymsList("cheap").contains(token) || token.equals("cheap")){
 					key = "Price Range";
 					richQuery.put(key,"1 2");
 				}
-				else if(synonymsList("costly").contains(token)){
+				else if(synonymsList("costly").contains(token) || token.equals("costly")){
 					key = "Price Range";
 					richQuery.put(key,"3 4 5");
 					
