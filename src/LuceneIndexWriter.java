@@ -308,18 +308,18 @@ public class LuceneIndexWriter {
 		String query = "";
 		
 		LuceneIndexWriter writer = new LuceneIndexWriter(INDEX_PATH, FILE, TIPS_FILE);
-	/*	try {
-			writer.createIndex();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+//		try {
+//			writer.createIndex();
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (ParseException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 	/*	Iterator<String> itr = writer.cats.iterator();
 		
@@ -451,9 +451,9 @@ public class LuceneIndexWriter {
 	}
 	public void filterSearch(IndexSearcher indexSearcher) throws org.apache.lucene.queryparser.classic.ParseException, IOException{
 		
-	QueryParser parser = new QueryParser("Price Range", new KeywordAnalyzer());
-	QueryParser parser3 = new QueryParser("Price Range", new StandardAnalyzer());
-		 QueryParser parser2 = new QueryParser("categories", new EnglishAnalyzer());
+		QueryParser parser = new QueryParser("Price Range", new KeywordAnalyzer());
+		QueryParser parser3 = new QueryParser("Price Range", new StandardAnalyzer());
+		QueryParser parser2 = new QueryParser("categories", new EnglishAnalyzer());
 
 		 BooleanQuery.Builder innerBooleanQueryBuilder = new BooleanQuery.Builder();
 		 innerBooleanQueryBuilder.add(new BooleanClause(parser.parse(String.valueOf(1)), BooleanClause.Occur.SHOULD));

@@ -1,22 +1,22 @@
  package com.Search.SearchEngine;
 
-import java.io.FileInputStream;
+//import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.StringReader;
+//import java.io.StringReader;
 import java.nio.file.Paths;
-import java.nio.file.Path;
+//import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.HashMap;
+//import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+//import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import javax.servlet.RequestDispatcher;
+//import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
+//import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +26,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.index.Term;
+//import org.apache.lucene.index.Term;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -39,7 +39,7 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
+//import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
@@ -49,9 +49,9 @@ import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Attribute;
-import org.apache.lucene.util.CharsRef;
-import org.apache.lucene.wordnet.SynonymMap;
+//import org.apache.lucene.util.Attribute;
+//import org.apache.lucene.util.CharsRef;
+//import org.apache.lucene.wordnet.SynonymMap;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -62,19 +62,19 @@ import com.spatial4j.core.shape.Point;
 import Classes.FilePath;
 import Classes.RichQuery;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
+//import org.apache.lucene.analysis.Analyzer;
+//import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+//import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+//import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
-import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
-import org.apache.lucene.analysis.tokenattributes.PositionLengthAttribute;
-import org.apache.lucene.analysis.tokenattributes.TermToBytesRefAttribute;
-import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
+//import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+//import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+//import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
+//import org.apache.lucene.analysis.tokenattributes.PositionLengthAttribute;
+//import org.apache.lucene.analysis.tokenattributes.TermToBytesRefAttribute;
+//import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.document.Document;
 
 /**
@@ -163,13 +163,13 @@ public class SearchEngine extends HttpServlet {
 		BooleanQuery.Builder builder = new BooleanQuery.Builder();
 		 MultiFieldQueryParser multiFieldqueryParser = new MultiFieldQueryParser(fieldSet.toArray(new String[fieldSet.size()]),new EnglishAnalyzer());
 		 
-	//	 RichQuery richQuery = new RichQuery(query);
+		 RichQuery richQuery = new RichQuery(query);
 		 
-//		 Map<String,String> queryMap = richQuery.getRichQuery();
-		  Map<String,String> queryMap = new HashMap<>();
-		  queryMap.put("Price Range", "1,2");
-		  queryMap.put("all", "parking");
-		  queryMap.put("categories", "restaurants");
+		 Map<String,String> queryMap = richQuery.getRichQuery();
+//		  Map<String,String> queryMap = new HashMap<>();
+//		  queryMap.put("Price Range", "1,2");
+//		  queryMap.put("all", "parking");
+//		  queryMap.put("categories", "restaurants");
 		  //queryMap.put("address", "pittsburgh");
 		 for(String queryField : queryMap.keySet()){
 			 String queryValue = queryMap.get(queryField);
@@ -186,7 +186,7 @@ public class SearchEngine extends HttpServlet {
 				 		}
 				 		builder.add(new BooleanClause(innerBooleanQueryBuilder.build(), BooleanClause.Occur.FILTER));
 				 	}
-				 	else if("all".equalsIgnoreCase(queryField)){
+				 	else if(queryField.equalsIgnoreCase("all")){
 				 		System.out.println("ALlllllllllllll");
 				 		BooleanQuery.Builder allQueryBuilder = new BooleanQuery.Builder();
 				 		String[] allQueryValues = queryValue.split(Pattern.quote(" "));
@@ -208,12 +208,12 @@ public class SearchEngine extends HttpServlet {
 				 		
 				 		builder.add(new BooleanClause(parseraddress.parse(queryValue), BooleanClause.Occur.FILTER));
 				 	} 
-				 	else if("categories".equalsIgnoreCase(queryField)){
+				 	else if(queryField.equalsIgnoreCase("categories")){
 				 		
 				 		String[] categoryValues = queryValue.split(Pattern.quote(" "));
 				 		QueryParser parserCategories = new QueryParser("categories", new EnglishAnalyzer());
 				 		for(String categoryValue : categoryValues){
-				 			builder.add(new BooleanClause(parserCategories.parse(categoryValue), BooleanClause.Occur.FILTER));
+				 			builder.add(new BooleanClause(parserCategories.parse(categoryValue), BooleanClause.Occur.SHOULD));
 				 		}
 				 		
 				 	}
