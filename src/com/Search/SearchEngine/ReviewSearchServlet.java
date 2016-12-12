@@ -31,6 +31,8 @@ import org.apache.lucene.store.FSDirectory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import Classes.FilePath;
+
 /**
  * Servlet implementation class ReviewSearchServlet
  */
@@ -39,8 +41,8 @@ public class ReviewSearchServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 
-	String INDEX_PATH = "C:\\Users\\Venkatesh\\Desktop\\lucenereviewindex";
-	String FILE = "C:\\Users\\Venkatesh\\Desktop\\review.json";
+	String INDEX_PATH = FilePath.ReviewIndex;
+//	String FILE = "C:\\Users\\Venkatesh\\Desktop\\review.json";
 
 
 	/**

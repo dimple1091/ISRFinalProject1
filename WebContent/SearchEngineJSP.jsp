@@ -10,6 +10,7 @@
       <meta charset="utf-8" />
       <meta name="viewport" content="initial-scale=1" />
       <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,700italic,400,600,700,800' rel='stylesheet' type='text/css' />
+      <!-- <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"> -->
       <link rel="stylesheet" href="css/font-awesome.min.css" />
       <link rel="stylesheet" href="css/bootstrap.min.css" />
       <link rel="stylesheet" href="css/templatemo_misc.css" />
@@ -62,6 +63,46 @@
 
 </style>
 
+    <style>
+      #locationField, #controls {
+        position: relative;
+        width: 480px;
+      }
+      #autocomplete {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 99%;
+      }
+      .label {
+        text-align: right;
+        font-weight: bold;
+        width: 100px;
+        color: #303030;
+      }
+      #address {
+        border: 1px solid #000090;
+        background-color: #f0f0ff;
+        width: 480px;
+        padding-right: 2px;
+      }
+      #address td {
+        font-size: 10pt;
+      }
+      .field {
+        width: 99%;
+      }
+      .slimField {
+        width: 80px;
+      }
+      .wideField {
+        width: 200px;
+      }
+      #locationField {
+        height: 20px;
+        margin-bottom: 2px;
+      }
+    </style>
    </head>
    <body>
    <!-- <form action="">
@@ -70,8 +111,11 @@
    <div id="wordclouddiv"></div>
       <form class="form-wrapper cf" style="margin-left:30px" onkeypress="return event.keyCode != 13;">
          <input style="height:39px;background:white;color:black" type="text" placeholder="Search here..." id="query" required/> 
-
-         <input style="height:39px;background:white;color:black" type="hidden" id="text" value="How are you How are you How are you How are you"/>
+         <!-- <div id="locationField">
+          <input style="height:39px;background:white;color:black" id="autocomplete" placeholder="Enter your address"
+          onFocus="geolocate()" type="text"></input>
+        </div> -->
+         <!-- <input style="height:39px;background:white;color:black" type="hidden" id="text" value="How are you How are you How are you How are you"/> -->
           
          <button type="button" id="buttonId" onclick="callServlet()">Search</button>
       </form>
@@ -257,50 +301,50 @@
     	  window.open("subsection.jsp");
       }
       
-      var area = document.getElementById('text');
-      function wordcount() {
+      // var area = document.getElementById('text');
+      // function wordcount() {
 
-          /* Below is a regular expression that finds alphanumeric characters
-             Next is a string that could easily be replaced with a reference to a form control
-             Lastly, we have an array that will hold any words matching our pattern */
-          var pattern = /\w+/g,
-              //string = "I I am am am yes yes.",
+      //     /* Below is a regular expression that finds alphanumeric characters
+      //        Next is a string that could easily be replaced with a reference to a form control
+      //        Lastly, we have an array that will hold any words matching our pattern */
+      //     var pattern = /\w+/g,
+      //         //string = "I I am am am yes yes.",
               
-              string = area.value;
-          matchedWords = string.match(pattern);
+      //         string = area.value;
+      //     matchedWords = string.match(pattern);
 
-          /* The Array.prototype.reduce method assists us in producing a single value from an
-             array. In this case, we're going to use it to output an object with results. */
+      //     /* The Array.prototype.reduce method assists us in producing a single value from an
+      //        array. In this case, we're going to use it to output an object with results. */
 
-          var counts = matchedWords.reduce(function(stats, word) {
+      //     var counts = matchedWords.reduce(function(stats, word) {
 
-              /* `stats` is the object that we'll be building up over time.
-                 `word` is each individual entry in the `matchedWords` array */
-              if (stats.hasOwnProperty(word)) {
-                  /* `stats` already has an entry for the current `word`.
-                     As a result, let's increment the count for that `word`. */
-                  stats[word] = stats[word] + 1;
-              } else {
-                  /* `stats` does not yet have an entry for the current `word`.
-                     As a result, let's add a new entry, and set count to 1. */
-                  stats[word] = 1;
-              }
+      //         /* `stats` is the object that we'll be building up over time.
+      //            `word` is each individual entry in the `matchedWords` array */
+      //         if (stats.hasOwnProperty(word)) {
+      //             /* `stats` already has an entry for the current `word`.
+      //                As a result, let's increment the count for that `word`. */
+      //             stats[word] = stats[word] + 1;
+      //         } else {
+      //             /* `stats` does not yet have an entry for the current `word`.
+      //                As a result, let's add a new entry, and set count to 1. */
+      //             stats[word] = 1;
+      //         }
 
-              //	wordcountarray.push({"text" : word, "size" : stats[word]});
+      //         //	wordcountarray.push({"text" : word, "size" : stats[word]});
 
-              /* Because we are building up `stats` over numerous iterations,
-                 we need to return it for the next pass to modify it. */
-              return stats;
+      //         /* Because we are building up `stats` over numerous iterations,
+      //            we need to return it for the next pass to modify it. */
+      //         return stats;
 
-          }, {});
+      //     }, {});
 
-          //alert(JSON.stringify(wordcountarray));
-          /* Now that `counts` has our object, we can log it. */
-          console.log(counts);
-          return counts;
-      }
+      //     //alert(JSON.stringify(wordcountarray));
+      //     /* Now that `counts` has our object, we can log it. */
+      //     console.log(counts);
+      //     return counts;
+      // }
 
-      var counts = wordcount();
+      // var counts = wordcount();
      // alert(JSON.stringify(counts));
 
     /*  var wordcountarray = [{
@@ -314,60 +358,60 @@
           "size": 90
       }];*/
       
-     var wordcountarray = [];
+     // var wordcountarray = [];
       
-      for(key in counts){
-   		wordcountarray.push({"text" : key, "size" : (counts[key])*10})
-   	  }
+     //  for(key in counts){
+   		// wordcountarray.push({"text" : key, "size" : (counts[key])*10})
+   	 //  }
       
       
-      var fill = d3.scale.category20();
+     //  var fill = d3.scale.category20();
 
 
-      var layout = d3.layout.cloud()
-          .size([500, 500])
-          /* .words([
-             "Hello", "world", "normally", "you", "want", "more", "words",
-             "than", "this"].map(function(d) {
-             return {"text": d, "size": 10 + Math.random() * 90};
-           }))*/
-          .words(wordcountarray)
-          .padding(5)
-          .rotate(function() {
-              return ~~(Math.random() * 2) * 90;
-          })
-          .font("Impact")
-          .fontSize(function(d) {
-              return d.size;
-          })
-          .on("end", draw);
+     //  var layout = d3.layout.cloud()
+     //      .size([500, 500])
+     //      /* .words([
+     //         "Hello", "world", "normally", "you", "want", "more", "words",
+     //         "than", "this"].map(function(d) {
+     //         return {"text": d, "size": 10 + Math.random() * 90};
+     //       }))*/
+     //      .words(wordcountarray)
+     //      .padding(5)
+     //      .rotate(function() {
+     //          return ~~(Math.random() * 2) * 90;
+     //      })
+     //      .font("Impact")
+     //      .fontSize(function(d) {
+     //          return d.size;
+     //      })
+     //      .on("end", draw);
 
-     // layout.start();
+     // // layout.start();
 
-      function draw(words) {
-          d3.select("#wordclouddiv").append("svg")
-              .attr("width", layout.size()[0])
-              .attr("height", layout.size()[1])
-              .append("g")
-              .attr("transform", "translate(" + (layout.size()[0] / 2) + "," + (layout.size()[1] / 2) + ")")
-              .selectAll("text")
-              .data(words)
-              .enter().append("text")
-              .style("font-size", function(d) {
-                  return d.size + "px";
-              })
-              .style("font-family", "Impact")
-              .style("fill", function(d, i) {
-                  return fill(i);
-              })
-              .attr("text-anchor", "middle")
-              .attr("transform", function(d) {
-                  return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-              })
-              .text(function(d) {
-                  return d.text;
-              });
-       }
+     //  function draw(words) {
+     //      d3.select("#wordclouddiv").append("svg")
+     //          .attr("width", layout.size()[0])
+     //          .attr("height", layout.size()[1])
+     //          .append("g")
+     //          .attr("transform", "translate(" + (layout.size()[0] / 2) + "," + (layout.size()[1] / 2) + ")")
+     //          .selectAll("text")
+     //          .data(words)
+     //          .enter().append("text")
+     //          .style("font-size", function(d) {
+     //              return d.size + "px";
+     //          })
+     //          .style("font-family", "Impact")
+     //          .style("fill", function(d, i) {
+     //              return fill(i);
+     //          })
+     //          .attr("text-anchor", "middle")
+     //          .attr("transform", function(d) {
+     //              return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+     //          })
+     //          .text(function(d) {
+     //              return d.text;
+     //          });
+     //   }
 	      
   
     	    /*$(function () {
@@ -415,5 +459,75 @@
         	});
          initGeolocation();
       </script>
+      <script>
+      // This example displays an address form, using the autocomplete feature
+      // of the Google Places API to help users fill in the information.
+
+      // This example requires the Places library. Include the libraries=places
+      // parameter when you first load the API. For example:
+      // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+
+      var placeSearch, autocomplete;
+      var componentForm = {
+        street_number: 'short_name',
+        route: 'long_name',
+        locality: 'long_name',
+        administrative_area_level_1: 'short_name',
+        country: 'long_name',
+        postal_code: 'short_name'
+      };
+
+      function initAutocomplete() {
+        // Create the autocomplete object, restricting the search to geographical
+        // location types.
+        autocomplete = new google.maps.places.Autocomplete(
+            /** @type {!HTMLInputElement} */(document.getElementById('autocomplete')),
+            {types: ['geocode']});
+
+        // When the user selects an address from the dropdown, populate the address
+        // fields in the form.
+        autocomplete.addListener('place_changed', fillInAddress);
+      }
+
+      function fillInAddress() {
+        // Get the place details from the autocomplete object.
+        var place = autocomplete.getPlace();
+
+        for (var component in componentForm) {
+          document.getElementById(component).value = '';
+          document.getElementById(component).disabled = false;
+        }
+
+        // Get each component of the address from the place details
+        // and fill the corresponding field on the form.
+        for (var i = 0; i < place.address_components.length; i++) {
+          var addressType = place.address_components[i].types[0];
+          if (componentForm[addressType]) {
+            var val = place.address_components[i][componentForm[addressType]];
+            document.getElementById(addressType).value = val;
+          }
+        }
+      }
+
+      // Bias the autocomplete object to the user's geographical location,
+      // as supplied by the browser's 'navigator.geolocation' object.
+      function geolocate() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var geolocation = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            var circle = new google.maps.Circle({
+              center: geolocation,
+              radius: position.coords.accuracy
+            });
+            autocomplete.setBounds(circle.getBounds());
+          });
+        }
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDzEZw27jj8cm_IJ5IHw7o7SENiYoPdk2A&libraries=places&callback=initAutocomplete"
+        async defer></script>
    </body>
 </html>

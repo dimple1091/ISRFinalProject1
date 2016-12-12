@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,8 +37,12 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Attribute;
 import org.apache.lucene.util.CharsRef;
 import org.apache.lucene.wordnet.SynonymMap;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import Classes.FilePath;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
@@ -70,8 +75,8 @@ public class SearchEngine extends HttpServlet {
 	//static String INDEX_PATH = "/Users/Dimple/Documents/workspace/ISRFinalProject1/luceneindex";
 	//String FILE = "/Users/Dimple/Documents/workspace/ISRFinalProject1/WebContent/yelp_academic_dataset_business.json";
 
-	static String INDEX_PATH = "C:\\Users\\Venkatesh\\Desktop\\luceneindex";
-	String FILE = "C:\\Users\\Venkatesh\\Desktop\\yelpjsonindex\\yelp_academic_dataset_business.json";
+	static String INDEX_PATH = FilePath.LuceneIndex;
+	String FILE = FilePath.BusinessFile;
 	
 	public void init() {
 
@@ -101,14 +106,14 @@ public class SearchEngine extends HttpServlet {
 		
 		System.out.println("Request Received....");
 		response.setContentType("text/html"); 
-
+		String curdir = System.getProperty("user.dir");
+		System.out.println(curdir);
 		String query=request.getParameter("query");
 		System.out.println("query :: "+query);
 		Set<String> querySet=new HashSet<String>();
 		querySet.add("Restaurants");
 		//String INDEX_PATH = "C:\\Users\\Venkatesh\\Desktop\\luceneindex";
 		//String FILE = "yelp_academic_dataset_business.json";
-
 		Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_PATH));
 		IndexReader indexReader = DirectoryReader.open(indexDirectory);
 		final IndexSearcher indexSearcher = new IndexSearcher(indexReader);

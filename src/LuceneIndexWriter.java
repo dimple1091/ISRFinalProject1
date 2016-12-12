@@ -50,6 +50,8 @@ import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 
+import Classes.FilePath;
+
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -285,9 +287,9 @@ public class LuceneIndexWriter {
 
 	public static void main(String[] args) throws IOException, org.apache.lucene.queryparser.classic.ParseException, ParseException {
 		
-		String INDEX_PATH = "C:\\Users\\Venkatesh\\Desktop\\luceneindex";
-		String FILE = "C:\\Users\\Venkatesh\\Desktop\\yelpjsonindex\\yelp_academic_dataset_business.json";
-		String TIPS_FILE = "C:\\Users\\Venkatesh\\Desktop\\dataset\\dataset\\yelp_academic_dataset_tip.json";
+		String INDEX_PATH = FilePath.LuceneIndex;
+		String FILE = FilePath.BusinessFile;
+		String TIPS_FILE = FilePath.TipFile;
 		String query = "";
 		
 		LuceneIndexWriter writer = new LuceneIndexWriter(INDEX_PATH, FILE, TIPS_FILE);
