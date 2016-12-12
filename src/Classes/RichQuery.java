@@ -18,8 +18,9 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 //import org.apache.lucene.analysis.Tokenizer;
 //import org.apache.lucene.analysis.core.LetterTokenizer;
-import org.apache.lucene.analysis.core.SimpleAnalyzer;
-import org.apache.lucene.analysis.standard.ClassicAnalyzer;
+//import org.apache.lucene.analysis.core.SimpleAnalyzer;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
+//import org.apache.lucene.analysis.standard.ClassicAnalyzer;
 //import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 //import org.apache.lucene.analysis.synonym.SynonymFilter;
 //import org.apache.lucene.analysis.synonym.SynonymMap;
@@ -44,7 +45,9 @@ public class RichQuery {
 //		Scanner fopen;
 		try {
 			categories = loadVariables(FilePath.Categories);
+//			System.out.println("hello::"+setToString(categories));
 			attributes = loadVariables(FilePath.Attributes);
+//			System.out.println(setToString(attributes));
 			neighborhood = loadVariables(FilePath.Neighborhood);
 //			fopen = new Scanner(new File(FilePath.Categories)); // Keeping the contents of categories.txt in memory for easy access.
 //			while (fopen.hasNextLine()==true){
@@ -76,43 +79,51 @@ public class RichQuery {
 	}
 	public Set<String> loadVariables(String fp){
 		Set<String> st = new HashSet<String>();
-		String word;
+		String word="",token;
 		Scanner fopen;
 		try {
 			fopen = new Scanner(new File(fp));
 			while (fopen.hasNextLine()==true){
-	        	word = fopen.nextLine();
-	        	st.add(word);
+	        	word += fopen.nextLine()+" ";
+//	        	st.add(word);
 	        }
 	        fopen.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} // Keeping the contents of location_prepositions.txt in memory for easy access.
-        
+		Analyzer analyzer = new EnglishAnalyzer();
+		try {
+			TokenStream stream  = analyzer.tokenStream(null, new StringReader(word));
+			stream.reset();
+			while (stream.incrementToken()) {
+				token = stream.getAttribute(CharTermAttribute.class).toString();
+				st.add(token);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		analyzer.close();
         return st;
 	}
 	public Map<String,String> getRichQuery(){
 		Map<String,String> richQuery = new HashMap<String,String>();
 		String allquery,token,key,cat="",attr="";
-		Set<String> categoryPresent,attrPresent;
-		Analyzer analyzer = new ClassicAnalyzer();
+//		Set<String> categoryPresent,attrPresent;
+		Analyzer analyzer = new EnglishAnalyzer();
 		allquery="";
 		try {
 			TokenStream stream  = analyzer.tokenStream(null, new StringReader(poorQuery));
 			stream.reset();
 			while (stream.incrementToken()) {
 				token = stream.getAttribute(CharTermAttribute.class).toString();
-//				key = getField(token);
-//				System.out.println(token);
-				categoryPresent = synonymsList(token);
-				categoryPresent.add(token);
-//				System.out.println(setToString(categoryPresent));
-				categoryPresent.retainAll(categories);
-//				System.out.println(setToString(categoryPresent));
-				attrPresent = synonymsList(token);
-				attrPresent.add(token);
-				attrPresent.retainAll(attributes);
+//				categoryPresent = synonymsList(token);
+//				categoryPresent.add(token);
+//				categoryPresent.retainAll(categories);
+//				attrPresent = synonymsList(token);
+//				attrPresent.add(token);
+//				attrPresent.retainAll(attributes);
 				if(synonymsList("cheap").contains(token) || token.equals("cheap")){
 					key = "Price Range";
 					richQuery.put(key,"1 2");
@@ -122,31 +133,35 @@ public class RichQuery {
 					richQuery.put(key,"3 4 5");
 					
 				}
-				else if(!categoryPresent.isEmpty()){
+//				else if(!categoryPresent.isEmpty()){
+				else if(categories.contains(token)){
+					cat+=token+" ";
 //					key = "Categories";
-					cat+=setToString(categoryPresent);
+//					cat+=setToString(categoryPresent);
 //					if(!attrPresent.isEmpty()){
 //						attr+=setToString(attrPresent);
 //					}
 				}
-				else if(!attrPresent.isEmpty()){
+//				else if(!attrPresent.isEmpty()){
+				else if(attributes.contains(token)){
+					attr+=token+" ";
 //					key = "Attributes";
-					attr+=setToString(attrPresent);
+//					attr+=setToString(attrPresent);
 //					richQuery.put(key,token);
 				}
 				else if(neighborhood.contains(token)){
-					richQuery.put("Neighborhood",token);
+					richQuery.put("neighborhoods",token);
 				}
 				else{
 					allquery+=token+" ";
 				}
 				
 			}
-			if(cat!="")
-				richQuery.put("Categories",cat);
-			if(attr!="")
-				richQuery.put("Attributes",attr);
-			if(allquery!="")
+			if(!cat.equals(""))
+				richQuery.put("categories",cat);
+			if(!attr.equals(""))
+				richQuery.put("attributes",attr);
+			if(!allquery.equals(""))
 				richQuery.put("All", allquery);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -177,9 +192,13 @@ public class RichQuery {
 //	}
 	public String setToString(Set<String> st){
 		String result="";
+//		System.out.println(st.isEmpty());
 		for(String str:st){
-			result+=str+" ";
+//			System.out.println(str);
+			result += str+" ";
+//			System.out.println(result);
 		}
+		
 		return result;
 	}
 	public Set<String> synonymsList(String token){
@@ -219,7 +238,7 @@ public class RichQuery {
 //		return null;
 	}
 //	public static void main(String[] args) {
-//		String str = "thai";
+//		String str = "cheap thai";
 ////		str = "cheap";
 //		RichQuery rq = new RichQuery(str);
 //		Map<String,String> mp = rq.getRichQuery();

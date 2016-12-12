@@ -1,71 +1,71 @@
-drive
-alcohol
-noise
-music
+Drive-Thru
+Alcohol
+Open 24 Hours
+Noise Level
+background_music
 latenight
 street
-TV
+Has TV
 asian
 divey
-attire
+Attire
 trendy
+Ages Allowed
 breakfast
 validated
-kids
+Good for Kids
 casual
+Price Range
 BYOB
 video
 coloring
-insurance
-caters
+Accepts Insurance
+Caters
 straightperms
 vegetarian
 valet
-delivery
-dogs
+Delivery
+Dogs Allowed
 live
 hipster
 lot
 touristy
-smoking
-credit
-BYOB
-byob
-corkage
-take-out
+Smoking
+Accepts Credit Cards
+BYOB/Corkage
+Take-out
 dj
 africanamerican
 soy-free
 intimate
 dessert
-coat
-gluten
+Coat Check
+gluten-free
 vegan
-appointment
+By Appointment Only
 lunch
-happy
-hour
-wheelchair
-accessible
-outdoor
-reservations
-waiter
+Happy Hour
+Wheelchair Accessible
+Corkage
+Outdoor Seating
+Takes Reservations
+Waiter Service
 brunch
-WiFi
+Wi-Fi
 karaoke
 curly
+kids
 romantic
-dancing
+Good For Dancing
 perms
 dairy-free
 jukebox
 kosher
 garage
 dinner
-counter
+Order at Counter
 extensions
 classy
 upscale
-groups
-group
+Good For Groups
 halal
