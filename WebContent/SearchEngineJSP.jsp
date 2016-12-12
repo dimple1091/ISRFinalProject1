@@ -121,7 +121,7 @@
 
       <div id="searchResults">
       
-	    <div class="col-md-8 margin30">
+<!-- 	    <div class="col-md-8 margin30">
 	         <div class="templatemo_homemid_right shadow">
 	            <div class="box">
 	               <div class="icon">
@@ -143,7 +143,7 @@
 	               <div class="clear"></div>
 	            </div>
 	         </div>
-	      </div>
+	      </div> -->
 
       </div>
       
@@ -225,7 +225,7 @@
      */
       
       
-
+var jsonGlobalData = "";
       function callServlet() {
     	  
           var query = document.getElementById("query").value;
@@ -244,6 +244,7 @@
               //if received a response from the server
               success: function(json) {
                   console.log(JSON.stringify(json));
+                  jsonGlobalData = json.result;
                   //alert(JSON.stringify(json));
                   callBackFunc(json);
               }
@@ -270,7 +271,7 @@
   	    	//divElement +=  					 "<img style=\"margin-top:0\" src=\"images/logo.jpg\" alt=\"templatemo home icon 1\" />";
   	    	//divElement += 			      "</div>";
   	    	divElement +=       		  "<div class=\"text\">";
-  	    	divElement +=       		  		"<a href=\"javascript:openNewPage()\"><div class=\"title\" style=\"font-family:serif;color:#4C4CFF\">";
+  	    	divElement +=       		  		"<a href=\"javascript:openNewPage('"+i+"')\"><div class=\"title\" style=\"font-family:serif;color:#4C4CFF\">";
   	    	divElement +=            	   			"<b>"+name+"</b>";
   	    	divElement +=		         		 "</div></a>";
   	    	for(j=0; j < parseInt(stars); j++){
@@ -301,8 +302,10 @@
     	  }
       }
       
-      function openNewPage(){
-    	  window.open("subsection.jsp");
+      function openNewPage(indexNum){
+    	  var jsonTopass = jsonGlobalData[indexNum];
+    	  //alert();
+    	  window.open("subsection.jsp?json="+encodeURIComponent(JSON.stringify(jsonTopass))+"");
       }
       
       // var area = document.getElementById('text');
