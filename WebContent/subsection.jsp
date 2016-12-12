@@ -71,6 +71,10 @@
 	
 </div>
  -->
+ <div id="reviews" class="container-fluid" >
+	<p style="font-size:30px;font-family:Lucida Sans Unicode;color:blue">Reviews</p>
+	
+</div>
 </body>
 <script>
 
@@ -97,7 +101,7 @@ var counts="";
         //if received a response from the server
         success: function(json) {
        	 //console.log(json.wordcloud);
-			// displayReviews(json.reviews);
+			 displayReviews(json.reviews);
         	calculateWordCount(JSON.stringify(json.wordcloud));
         	calculateBarChart(JSON.stringify(json.VeryNegative),JSON.stringify(json.Negative),JSON.stringify(json.Neutral),JSON.stringify(json.Positive),JSON.stringify(json.VeryPositive));
         	 //console.log(JSON.stringify(json.veryNeg));
@@ -111,31 +115,31 @@ var counts="";
         }
     });
 
-   //  function displayReviews(review){
-   //  	var a=review.split("\\n");
-    	
-   //  	// console.log(a.length);
-   //  	for(i=0;i<a.length;i++){
+     function displayReviews(review){
+     	var a=review.split("\\n");
+   
+   // 	 console.log(a.length);
+     	for(i=0;i<a.length;i++){
     		
-   //  		var p=document.createElement("p");
-   //      	p.style.fontSize="20px";
-   //      	a[i]=a[i].replace('[', '');
-   //      	a[i]=a[i].replace(']', '');
-   //      	a[i]=a[i].replace('"', '');
-   //      	a[i]=a[i].replace('/', '');
-   //      	a[i]=a[i].replace('\\', '');
-			// if(a[i]==""){}
-			// else{
-   //      	var text=document.createTextNode("*"+". "+a[i]);
-			// }
-   //      	p.appendChild(text);
+     		var p=document.createElement("p");
+         	p.style.fontSize="20px";
+         	a[i]=a[i].replace('[', '');
+         	a[i]=a[i].replace(']', '');
+         	a[i]=a[i].replace('"', '');
+         	a[i]=a[i].replace('/', '');
+         	a[i]=a[i].replace('\\', '');
+			 if(a[i]==""){}
+			 else{
+         	var text=document.createTextNode("*"+". "+a[i]);
+			 }
+         	p.appendChild(text);
         	
-   //      	//console.log("Hello");
-   //      	//console.log(text);
-   //      	document.getElementById("reviews").appendChild(p);
-   //  	}
+         	//console.log("Hello");
+         	//console.log(text);
+         	document.getElementById("reviews").appendChild(p);
+     	}
     	
-   //  }
+     }
 	function calculateBarChart(a,b,c,d,e){
 		// var t = a+b+c+d+e;
 		var t=1;
@@ -154,7 +158,7 @@ var counts="";
 
 		var y = d3.scale.linear()
 		.range([height, 0])
-		domain([0, d3.max(data, function(d) { return d.frequency; })]);
+		.domain([0, d3.max(data, function(d) { return d.frequency; })]);
 
 		var xAxis = d3.svg.axis()
 		.scale(x)
