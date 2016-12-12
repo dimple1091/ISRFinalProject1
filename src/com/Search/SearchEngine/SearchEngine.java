@@ -68,7 +68,7 @@ import org.apache.lucene.analysis.core.KeywordAnalyzer;
 //import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 //import org.apache.lucene.analysis.standard.StandardAnalyzer;
-
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 //import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 //import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 //import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
@@ -209,14 +209,33 @@ public class SearchEngine extends HttpServlet {
 				 		builder.add(new BooleanClause(parseraddress.parse(queryValue), BooleanClause.Occur.FILTER));
 				 	} 
 				 	else if(queryField.equalsIgnoreCase("categories")){
-				 		
+				 		BooleanQuery.Builder innerBooleanCatBuilder = new BooleanQuery.Builder();
 				 		String[] categoryValues = queryValue.split(Pattern.quote(" "));
-				 		QueryParser parserCategories = new QueryParser("categories", new EnglishAnalyzer());
+				 		QueryParser parserCategories = new QueryParser("categories", new StandardAnalyzer());
 				 		for(String categoryValue : categoryValues){
-				 			builder.add(new BooleanClause(parserCategories.parse(categoryValue), BooleanClause.Occur.SHOULD));
+				 			innerBooleanCatBuilder.add(new BooleanClause(parserCategories.parse(categoryValue), BooleanClause.Occur.SHOULD));
 				 		}
-				 		
+				 		builder.add(new BooleanClause(innerBooleanCatBuilder.build(), BooleanClause.Occur.FILTER));
 				 	}
+					else if(queryField.equalsIgnoreCase("neighborhoods")){
+						
+						 	
+			 			QueryParser parseraddress = new QueryParser("neighborhoods", new EnglishAnalyzer());
+			 		
+			 			//innerBooleanQueryBuilder.add(new BooleanClause(parser.parse(priceRangeValue), BooleanClause.Occur.SHOULD));
+			 		
+			 		builder.add(new BooleanClause(parseraddress.parse(queryValue), BooleanClause.Occur.SHOULD));
+			 	} 
+					else if(queryField.equalsIgnoreCase("attributes")){
+				 		BooleanQuery.Builder innerBooleanattrBuilder = new BooleanQuery.Builder();
+				 		String[] attrValues = queryValue.split(Pattern.quote(" "));
+				 		QueryParser parserCategories = new QueryParser("attributes", new EnglishAnalyzer());
+				 		for(String attrValue : attrValues){
+				 			innerBooleanattrBuilder.add(new BooleanClause(parserCategories.parse(attrValue), BooleanClause.Occur.SHOULD));
+				 		}
+				 		builder.add(new BooleanClause(innerBooleanattrBuilder.build(), BooleanClause.Occur.FILTER));
+				 	}
+				 	
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -243,7 +262,7 @@ public class SearchEngine extends HttpServlet {
 		 
 		 TopDocs topDocs = null;
 		try {
-			topDocs = search( latitude,longitude, 2, indexSearcher,builder);
+			topDocs = search( latitude,longitude, 7, indexSearcher,builder);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
