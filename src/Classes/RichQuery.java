@@ -134,6 +134,13 @@ public class RichQuery {
 					
 				}
 //				else if(!categoryPresent.isEmpty()){
+				else if(attributes.contains(token)){
+					attr+=token+" ";
+//					key = "Attributes";
+//					attr+=setToString(attrPresent);
+//					richQuery.put(key,token);
+				}
+				
 				else if(categories.contains(token)){
 					cat+=token+" ";
 //					key = "Categories";
@@ -143,12 +150,7 @@ public class RichQuery {
 //					}
 				}
 //				else if(!attrPresent.isEmpty()){
-				else if(attributes.contains(token)){
-					attr+=token+" ";
-//					key = "Attributes";
-//					attr+=setToString(attrPresent);
-//					richQuery.put(key,token);
-				}
+			
 				else if(neighborhood.contains(token)){
 					richQuery.put("neighborhoods",token);
 				}
