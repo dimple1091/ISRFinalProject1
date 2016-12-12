@@ -9,7 +9,7 @@
       <meta name="description" content="" />
       <meta charset="utf-8" />
       <meta name="viewport" content="initial-scale=1" />
-      <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,700italic,400,600,700,800' rel='stylesheet' type='text/css' />
+      <!-- <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,700italic,400,600,700,800' rel='stylesheet' type='text/css' /> -->
       <!-- <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"> -->
       <link rel="stylesheet" href="css/font-awesome.min.css" />
       <link rel="stylesheet" href="css/bootstrap.min.css" />
@@ -20,7 +20,7 @@
       <link rel="stylesheet" type="text/css" href="css/SearchEngine.css" />
       <script src="js/jquery-1.11.2.min.js"></script>
       <!-- lightbox -->
-      <script src="js/templatemo_tab.js"></script>
+     <!--  <script src="js/templatemo_tab.js"></script> -->
       <!-- lightbox -->
       <script src="js/bootstrap-collapse.js"></script>
       <script src="js/jquery-ui.min.js"></script>
@@ -68,12 +68,12 @@
         position: relative;
         width: 480px;
       }
-      #autocomplete {
+/*       #autocomplete {
         position: absolute;
         top: 0px;
         left: 0px;
         width: 99%;
-      }
+      } */
       .label {
         text-align: right;
         font-weight: bold;
@@ -111,10 +111,9 @@
    <div id="wordclouddiv"></div>
       <form class="form-wrapper cf" style="margin-left:30px" onkeypress="return event.keyCode != 13;">
          <input style="height:39px;background:white;color:black" type="text" placeholder="Search here..." id="query" required/> 
-         <!-- <div id="locationField">
+          <!-- <div id="locationField"></div> -->
           <input style="height:39px;background:white;color:black" id="autocomplete" placeholder="Enter your address"
-          onFocus="geolocate()" type="text"></input>
-        </div> -->
+          onFocus="geolocate()" type="text"></input> 
          <!-- <input style="height:39px;background:white;color:black" type="hidden" id="text" value="How are you How are you How are you How are you"/> -->
           
          <button type="button" id="buttonId" onclick="callServlet()">Search</button>
@@ -162,6 +161,9 @@
       </div>
       <!-- footer end-->
       <script>
+      
+      var latitudeValue = "";
+      var longitudeValue = "";
       
       var options = {
 
@@ -232,7 +234,9 @@
               type: "POST",
               url: "SearchEngine", //&quot;/AjaxServletCalculator&quot;,
               data: {
-                  "query": query
+                  "query": query,
+                  "latitude" : latitudeValue,
+                   "longitude" : longitudeValue
               },
               //contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
               //contentType: 'text/html; charset=utf-8',
@@ -438,6 +442,8 @@
 
          function success(position)
          {
+        	 latitudeValue =  position.coords.latitude;
+        	 longitudeValue = position.coords.longitude;
 			//alert(position.coords.longitude+" , "+position.coords.latitude);
              //document.getElementById('long').value = position.coords.longitude;
             // document.getElementById('lat').value = position.coords.latitude
@@ -492,7 +498,9 @@
       function fillInAddress() {
         // Get the place details from the autocomplete object.
         var place = autocomplete.getPlace();
-
+        console.log(place.geometry.location.lng() +" " + place.geometry.location.lat());
+        latitudeValue =  place.geometry.location.lat();
+   		 longitudeValue = place.geometry.location.lng();
         for (var component in componentForm) {
           document.getElementById(component).value = '';
           document.getElementById(component).disabled = false;
@@ -518,6 +526,7 @@
               lat: position.coords.latitude,
               lng: position.coords.longitude
             };
+            //console.log(position.coords.longitude+" "+position.coords.latitude)
             var circle = new google.maps.Circle({
               center: geolocation,
               radius: position.coords.accuracy
