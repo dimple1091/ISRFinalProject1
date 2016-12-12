@@ -2,13 +2,23 @@
     pageEncoding="UTF-8"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="js/d3.layout.cloud.js"></script>
-<script src="js/jquery-1.11.2.min.js"></script>
-<script src="js/jquery-ui.min.js"></script>
-<script src="js/json2.js"></script>
+
 <head>
-    <title>Word Cloud Example</title>
+    <title>Word Cloud</title>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="js/d3.layout.cloud.js"></script>
+    <script src="js/jquery-1.11.2.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/json2.js"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </head>
 <style>
 
@@ -44,23 +54,23 @@
 	#xaxis text, #yaxis text {
 		font-size: 12px;
 	}
+	
 </style>
 <body>
 
-	<div id="word" style="float:left;display:block">
+	<div class="container-fluid" id="word">
 		
 	</div>
-	<div id="bar" style="margin-left:846px;display:block">
-	
-	</div><br><br>
+	<div class="container-fluid" id="bar">
+	</div>
 	
 
 
-<div id="reviews" style="display:block;float:left;margin-top:-200px;">
+<!-- <div id="reviews" style="display:block;float:left;margin-top:-200px;">
 	<p style="font-size:30px;font-family:Lucida Sans Unicode;color:blue">Reviews</p>
 	
 </div>
-
+ -->
 </body>
 <script>
 
@@ -87,9 +97,9 @@ var counts="";
         //if received a response from the server
         success: function(json) {
        	 //console.log(json.wordcloud);
-			displayReviews(json.reviews);
+			// displayReviews(json.reviews);
         	calculateWordCount(JSON.stringify(json.wordcloud));
-        	calculateBarChart(JSON.stringify(json.veryNeg),JSON.stringify(json.neg),JSON.stringify(json.neutral),JSON.stringify(json.positive),JSON.stringify(json.Vpositive));
+        	calculateBarChart(JSON.stringify(json.VeryNegative),JSON.stringify(json.Negative),JSON.stringify(json.Neutral),JSON.stringify(json.Positive),JSON.stringify(json.VeryPositive));
         	 //console.log(JSON.stringify(json.veryNeg));
         	 //console.log(JSON.stringify(json.neg));
         	 //console.log(JSON.stringify(json.neutral));
@@ -101,129 +111,273 @@ var counts="";
         }
     });
 
-    function displayReviews(review){
-    	var a=review.split("\\n");
+   //  function displayReviews(review){
+   //  	var a=review.split("\\n");
     	
-    	console.log(a.length);
-    	for(i=0;i<a.length;i++){
+   //  	// console.log(a.length);
+   //  	for(i=0;i<a.length;i++){
     		
-    		var p=document.createElement("p");
-        	p.style.fontSize="20px";
-        	a[i]=a[i].replace('[', '');
-        	a[i]=a[i].replace(']', '');
-        	a[i]=a[i].replace('"', '');
-        	a[i]=a[i].replace('/', '');
-        	a[i]=a[i].replace('\\', '');
-			if(a[i]==""){}
-			else{
-        	var text=document.createTextNode("*"+". "+a[i]);
-			}
-        	p.appendChild(text);
+   //  		var p=document.createElement("p");
+   //      	p.style.fontSize="20px";
+   //      	a[i]=a[i].replace('[', '');
+   //      	a[i]=a[i].replace(']', '');
+   //      	a[i]=a[i].replace('"', '');
+   //      	a[i]=a[i].replace('/', '');
+   //      	a[i]=a[i].replace('\\', '');
+			// if(a[i]==""){}
+			// else{
+   //      	var text=document.createTextNode("*"+". "+a[i]);
+			// }
+   //      	p.appendChild(text);
         	
-        	//console.log("Hello");
-        	//console.log(text);
-        	document.getElementById("reviews").appendChild(p);
-    	}
+   //      	//console.log("Hello");
+   //      	//console.log(text);
+   //      	document.getElementById("reviews").appendChild(p);
+   //  	}
     	
-    }
+   //  }
 	function calculateBarChart(a,b,c,d,e){
-		var categories= ['','Very Negative', 'Negative', 'Neutral', 'Positive', 'Very Positive'];
+		// var t = a+b+c+d+e;
+		var t=1;
+		// console.log(t);
+		var data = [{name:'Very Negative', frequency:a/t}, {name:'Negative', frequency:b/t}, {name:'Neutral', frequency:c/t},
+						{name:'Positive', frequency:d/t},{name:'Very Positive', frequency:e/t}];
 
-		var dollars = [,a,b,c,d,e];
+		var margin = {top: 20, right: 20, bottom: 30, left: 40},
+		width = 960 - margin.left - margin.right,
+		height = 500 - margin.top - margin.bottom;
 
-		var colors = ['#0000b4','#0082ca','#0094ff','#0d4bcf','#0066AE','#074285','#00187B','#285964','#405F83','#416545','#4D7069','#6E9985','#7EBC89','#0283AF','#79BCBF','#99C19E'];
+		var formatPercent = d3.format(".0%");
 
-		var grid = d3.range(25).map(function(i){
-			return {'x1':0,'y1':0,'x2':0,'y2':400};
-		});
+		var x = d3.scale.ordinal()
+		.rangeRoundBands([0, width], .1);
 
-		var tickVals = grid.map(function(d,i){
-			if(i>0){ return i*10; }
-			else if(i===0){ return "100";}
-		});
+		var y = d3.scale.linear()
+		.range([height, 0])
+		domain([0, d3.max(data, function(d) { return d.frequency; })]);
 
-		var xscale = d3.scale.linear()
-						.domain([0,100])
-						.range([0,722]);
+		var xAxis = d3.svg.axis()
+		.scale(x)
+		.orient("bottom");
 
-		var yscale = d3.scale.linear()
-						.domain([0,categories.length])
-						.range([0,400]);
+		var yAxis = d3.svg.axis()
+		.scale(y)
+		.orient("left");
+		// .tickFormat(formatPercent);
 
-		var colorScale = d3.scale.quantize()
-						.domain([0,categories.length])
-						.range(colors);
-
-		var canvas = d3.select('#bar')
-						.append('svg')
-						.attr({'width':700,'height':550});
-
-		var grids = canvas.append('g')
-						  .attr('id','grid')
-						  .attr('transform','translate(150,10)')
-						  .selectAll('line')
-						  .data(grid)
-						  .enter()
-						  .append('line')
-						  .attr({'x1':function(d,i){ return i*30; },
-								 'y1':function(d){ return d.y1; },
-								 'x2':function(d,i){ return i*30; },
-								 'y2':function(d){ return d.y2; },
-							})
-						  .style({'stroke':'#adadad','stroke-width':'1px'});
-
-		var	xAxis = d3.svg.axis();
-			xAxis
-				.orient('bottom')
-				.scale(xscale)
-				.tickValues(tickVals);
-
-		var	yAxis = d3.svg.axis();
-			yAxis
-				.orient('left')
-				.scale(yscale)
-				.tickSize(2)
-				.tickFormat(function(d,i){ return categories[i]; })
-				.tickValues(d3.range(17));
-
-		var y_xis = canvas.append('g')
-						  .attr("transform", "translate(150,0)")
-						  .attr('id','yaxis')
-						  .call(yAxis);
-
-		var x_xis = canvas.append('g')
-						  .attr("transform", "translate(150,400)")
-						  .attr('id','xaxis')
-						  .call(xAxis);
-
-		var chart = canvas.append('g')
-							.attr("transform", "translate(150,0)")
-							.attr('id','bars')
-							.selectAll('rect')
-							.data(dollars)
-							.enter()
-							.append('rect')
-							.attr('height',17)
-							.attr({'x':0,'y':function(d,i){ return yscale(i)-9; }})
-							.style('fill',function(d,i){ return colorScale(i); })
-							.attr('width',function(d){ return d*7; });
+		var colors = d3.scale.ordinal()
+		.domain(['Very Negative','Negative','Neutral','Positive','Very Positive'])
+		.range(['#ff0000','#ff9999','#ffff00','#ccffcc','#00ff00'])
 
 
-		var transit = d3.select("svg").selectAll("rect")
-						    .data(dollars)
-						    .transition()
-						    .duration(1000) 
-						    .attr("width", function(d) {return xscale(d); });
+		var tip = d3.tip()
+		.attr('class', 'd3-tip')
+		.offset([-10, 0])
+		.html(function(d) {
+			return "<strong>Frequency:</strong> <span style='color:red'>" + d.frequency + "</span>";
+		})
 
-		var transitext = d3.select('#bars')
-							.selectAll('text')
-							.data(dollars)
-							.enter()
-							.append('text')
-							.attr({'x':function(d) {return xscale(d)-200; },'y':function(d,i){ return yscale(i)+7; }})
-							.text(function(d){ return d; }).style({'fill':'#fff','font-size':'14px'});
+		var svg = d3.select("#bar").append("svg")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+		svg.call(tip);
+
+		// d3.tsv("data.tsv", type, function(error, data) {
+		x.domain(data.map(function(d) { return d.name; }));
+		y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+
+		svg.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + height + ")")
+		.call(xAxis);
+
+		svg.append("g")
+		.attr("class", "y axis")
+		.call(yAxis)
+		.append("text")
+		.attr("transform", "rotate(-90)")
+		.attr("y", 6)
+		.attr("dy", ".71em")
+		.style("text-anchor", "end")
+		.text("Frequency");
+
+		svg.selectAll(".bar")
+		.data(data)
+		.enter().append("rect")
+		.attr("class", "bar")
+		.attr("fill", function(d, i) { return colors(d.name) })
+		.attr("x", function(d) { return x(d.name); })
+		.attr("width", x.rangeBand([0,20]))
+		.attr("y", function(d) { return y(d.frequency); })
+		.attr("height", function(d) { return height - y(d.frequency); })
+		.on('mouseover', tip.show)
+		.on('mouseout', tip.hide)
+
+		// });
+
+		function type(d) {
+			d.frequency = +d.frequency;
+			return d;
+}
+		// var svg = d3.select("svg"),
+		// margin = {top: 20, right: 20, bottom: 30, left: 40},
+		// width = +svg.attr("width") - margin.left - margin.right,
+		// height = +svg.attr("height") - margin.top - margin.bottom;
+		// var dataMin = d3.min(d3.values(data));
+		// var dataMax = d3.max(d3.values(data)); 
+		
+		// // prescale = d3.scale.linear()
+  // //                  .domain([dataMin, dataMax])
+  // //                  .range([0,1]);
+        
+  // //       yScale = d3.scale.linear()
+  // //                .domain([0, 1])
+  // //                .range([bottom, top]);
+
+  //       formatter = d3.format(".0%");
+
+		// var x = d3.scale.ordinal().rangeRound([0, width]).padding(0.1),
+		// y = d3.scale.linear().rangeRound([height, 0]);
+
+		// var g = svg.append("g")
+		// .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		// // d3.tsv(sentiments, function(d) {
+		// // 	d.frequency = +d.frequency;
+		// // 	return d;
+		// // }, function(error, data) {
+		// // 	if (error) throw error;
+
+		// x.domain(data.map(function(d) { return d.name; }));
+		// y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+
+		// g.append("g")
+		// .attr("class", "axis axis--x")
+		// .attr("transform", "translate(0," + height + ")")
+		// .call(d3.axisBottom(x));
+
+		// g.append("g")
+		// .attr("class", "axis axis--y")
+		// .call(d3.axisLeft(y))//.ticks(10, "%"))
+		// // .scale(yScale)
+		// .tickFormat(formatter)
+		// .append("text")
+		// .attr("transform", "rotate(-90)")
+		// .attr("y", 6)
+		// .attr("dy", "0.71em")
+		// .attr("text-anchor", "end")
+		// .text("Frequency");
+
+		// g.selectAll(".bar")
+		// .data(data)
+		// .enter().append("rect")
+		// .attr("class", "bar")
+		// .attr("x", function(d) { return x(d.name); })
+		// .attr("y", function(d) { return y(d.frequency); })
+		// .attr("width", x.bandwidth())
+		// .attr("height", function(d) { return height - y(d.frequency); });
 	}
+		// });
+	// 	var categories= ['Very Negative', 'Negative', 'Neutral', 'Positive', 'Very Positive'];
+
+	// 	var dollars = [a,b,c,d,e];
+
+	// 	var colors = ['#0000b4','#0082ca','#0094ff','#0d4bcf','#0066AE','#074285','#00187B','#285964','#405F83','#416545','#4D7069','#6E9985','#7EBC89','#0283AF','#79BCBF','#99C19E'];
+
+	// 	var grid = d3.range(25).map(function(i){
+	// 		return {'x1':0,'y1':0,'x2':0,'y2':400};
+	// 	});
+
+	// 	var tickVals = grid.map(function(d,i){
+	// 		if(i>0){ return i*10; }
+	// 		else if(i===0){ return "100";}
+	// 	});
+
+	// 	var xscale = d3.scale.linear()
+	// 					.domain([0,100])
+	// 					.range([0,722]);
+
+	// 	var yscale = d3.scale.linear()
+	// 					.domain([0,categories.length])
+	// 					.range([0,400]);
+
+	// 	var colorScale = d3.scale.quantize()
+	// 					.domain([0,categories.length])
+	// 					.range(colors);
+
+	// 	var canvas = d3.select('#bar')
+	// 					.append('svg')
+	// 					.attr({'width':700,'height':550});
+
+	// 	var grids = canvas.append('g')
+	// 					  .attr('id','grid')
+	// 					  .attr('transform','translate(150,10)')
+	// 					  .selectAll('line')
+	// 					  .data(grid)
+	// 					  .enter()
+	// 					  .append('line')
+	// 					  .attr({'x1':function(d,i){ return i*30; },
+	// 							 'y1':function(d){ return d.y1; },
+	// 							 'x2':function(d,i){ return i*30; },
+	// 							 'y2':function(d){ return d.y2; },
+	// 						})
+	// 					  .style({'stroke':'#adadad','stroke-width':'1px'});
+
+	// 	var	xAxis = d3.svg.axis();
+	// 		xAxis
+	// 			.orient('bottom')
+	// 			.scale(xscale)
+	// 			.tickValues(tickVals);
+
+	// 	var	yAxis = d3.svg.axis();
+	// 		yAxis
+	// 			.orient('left')
+	// 			.scale(yscale)
+	// 			.tickSize(2)
+	// 			.tickFormat(function(d,i){ return categories[i]; })
+	// 			.tickValues(d3.range(17));
+
+	// 	var y_xis = canvas.append('g')
+	// 					  .attr("transform", "translate(150,0)")
+	// 					  .attr('id','yaxis')
+	// 					  .call(yAxis);
+
+	// 	var x_xis = canvas.append('g')
+	// 					  .attr("transform", "translate(150,400)")
+	// 					  .attr('id','xaxis')
+	// 					  .call(xAxis);
+
+	// 	var chart = canvas.append('g')
+	// 						.attr("transform", "translate(150,0)")
+	// 						.attr('id','bars')
+	// 						.selectAll('rect')
+	// 						.data(dollars)
+	// 						.enter()
+	// 						.append('rect')
+	// 						.attr('height',17)
+	// 						.attr({'x':0,'y':function(d,i){ return yscale(i)-9; }})
+	// 						.style('fill',function(d,i){ return colorScale(i); })
+	// 						.attr('width',function(d){ return d*7; });
+
+
+	// 	var transit = d3.select("svg").selectAll("rect")
+	// 					    .data(dollars)
+	// 					    .transition()
+	// 					    .duration(1000) 
+	// 					    .attr("width", function(d) {return xscale(d); });
+
+	// 	var transitext = d3.select('#bars')
+	// 						.selectAll('text')
+	// 						.data(dollars)
+	// 						.enter()
+	// 						.append('text')
+	// 						.attr({'x':function(d) {return xscale(d)-200; },'y':function(d,i){ return yscale(i)+7; }})
+	// 						.text(function(d){ return d; }).style({'fill':'#fff','font-size':'14px'});
+
+	// }
 
 	function calculateWordCount(json){
 		var counts=wordcount(json);  
@@ -238,7 +392,7 @@ var counts="";
 			
 		}
 		var frequency_list = wordcountarray;
-		console.log(frequency_list);
+		// console.log(frequency_list);
 		
 		var color = d3.scale.linear()
         .domain([0,1,2,3,4,5,6])

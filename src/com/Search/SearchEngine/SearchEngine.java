@@ -192,8 +192,8 @@ public class SearchEngine extends HttpServlet {
 				 		String[] allQueryValues = queryValue.split(Pattern.quote(" "));
 				 		for(String allQueryValue : allQueryValues){
 				 			System.out.println("allQueryValue ::: "+allQueryValue);
-				 			//QueryParser allQueryparser = new QueryParser("Price Range", new EnglishAnalyzer());
-				 			allQueryBuilder.add(new BooleanClause(multiFieldqueryParser.parse(allQueryValue), BooleanClause.Occur.SHOULD));
+				 			QueryParser allQueryparser = new QueryParser("Price Range", new EnglishAnalyzer());
+				 			allQueryBuilder.add(new BooleanClause(allQueryparser.parse(allQueryValue), BooleanClause.Occur.SHOULD));
 				 			//builder.add(new BooleanClause(multiFieldqueryParser.parse(allQueryValue), BooleanClause.Occur.FILTER));
 				 		}
 				 		builder.add(new BooleanClause(allQueryBuilder.build(), BooleanClause.Occur.MUST));

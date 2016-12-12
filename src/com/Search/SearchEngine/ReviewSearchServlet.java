@@ -3,7 +3,9 @@ package com.Search.SearchEngine;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,12 +13,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.StopFilter;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.standard.ClassicFilter;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
@@ -84,28 +88,45 @@ public class ReviewSearchServlet extends HttpServlet {
 		org.apache.lucene.queryparser.classic.QueryParser parser = new org.apache.lucene.queryparser.classic.QueryParser("business_id", new EnglishAnalyzer());
 		StringBuilder builder = new StringBuilder();
 		TopDocs topDocs;
+		String token;
 		try {
 			topDocs = indexSearcher.search(parser.parse(business_id), 20);
 			
 			JSONArray reviewJSONArray = new JSONArray();
+//			List<String> reviewList = new ArrayList<>();
 			for(ScoreDoc scoredoc : topDocs.scoreDocs){
 				Document doc = indexReader.document(scoredoc.doc);
 
 				String review = doc.get("text");
 				reviewJSONArray.add(review);
-				StandardTokenizer tockenizer = new StandardTokenizer();
-
-				tockenizer.setReader(new StringReader(review));
-
-				TokenStream tokenStream = new StopFilter(new ASCIIFoldingFilter(new ClassicFilter(new LowerCaseFilter(tockenizer))), EnglishAnalyzer.getDefaultStopSet());
-				tokenStream.reset();
-		
-				CharTermAttribute token = tokenStream.getAttribute(CharTermAttribute.class);
-				while (tokenStream.incrementToken()) {
-					//System.out.println(token.toString());
-					builder.append(token.toString()+" ");
+//				reviewList.add(review);
+				Analyzer analyzer = new StandardAnalyzer();
+				try {
+					TokenStream stream  = analyzer.tokenStream(null, new StringReader(review));
+					stream.reset();
+//					CharTermAttribute token = stream.getAttribute(CharTermAttribute.class);
+					while (stream.incrementToken()) {
+						token = stream.getAttribute(CharTermAttribute.class).toString();
+						builder.append(token+" ");
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				tokenStream.close();
+				analyzer.close();
+//				StandardTokenizer tockenizer = new StandardTokenizer();
+//
+//				tockenizer.setReader(new StringReader(review));
+//
+//				TokenStream tokenStream = new StopFilter(new ASCIIFoldingFilter(new ClassicFilter(new LowerCaseFilter(tockenizer))), EnglishAnalyzer.getDefaultStopSet());
+//				tokenStream.reset();
+//		
+//				CharTermAttribute token = tokenStream.getAttribute(CharTermAttribute.class);
+//				while (tokenStream.incrementToken()) {
+//					//System.out.println(token.toString());
+//					builder.append(token.toString()+" ");
+//				}
+//				tokenStream.close();
 			}
 			 
 			System.out.println(builder.toString());
@@ -116,8 +137,11 @@ public class ReviewSearchServlet extends HttpServlet {
 			
 			returnJSON.put("wordcloud", builder.toString());
 			returnJSON.put("reviews", reviewJSONArray.toString());
-			returnJSON.put("pos", reviewsArray[0]);
-			returnJSON.put("neg", reviewsArray[1]);
+			returnJSON.put("VeryNegative", reviewsArray[0]);
+			returnJSON.put("Negative", reviewsArray[1]);
+			returnJSON.put("Neutral", reviewsArray[2]);
+			returnJSON.put("Positive", reviewsArray[3]);
+			returnJSON.put("VeryPositive", reviewsArray[4]);
 			System.out.println(returnJSON.toString());
 			response.getWriter().print(returnJSON.toString());
 
@@ -129,20 +153,27 @@ public class ReviewSearchServlet extends HttpServlet {
 	}
 	
 	public int[] getSentiment(JSONArray reviewsJSONArray){
-		 int neg=0;
-		 int pos=0;
-	        for(String review : (List<String>)reviewsJSONArray) {
-	        	 int sentiment = NLP.findSentiment(review);
-	            System.out.println(review + " : " +sentiment);
-	            if(sentiment<=1){
-	            	pos=pos+1;
-	            }
-	            if(sentiment>1){
-	            	neg=neg+1;
-	            }
-	             
-	        }
-	        return new int[]{pos,neg};
-	}
+		int val;
+		String reviews="";
+		int[] sentiment = new int[5];
+		for(String review : (List<String>)reviewsJSONArray) {
+			reviews+=review+" ";
+		}
+		for(String str: reviews.split(Pattern.quote("."))){
+			val = NLP.findSentiment(str);
+			if(val>=0)
+				sentiment[val]++;
+		}
+//	            System.out.println(review + " : " +sentiment);
+//			 if(sentiment<=1){
+//				 pos=pos+1;
+//			 }
+//			 if(sentiment>1){
+//				 neg=neg+1;
+//			 }
+             
+//		 }
+		 return sentiment;
+	 }
 
 }

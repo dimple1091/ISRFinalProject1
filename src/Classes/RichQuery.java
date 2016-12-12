@@ -18,8 +18,9 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 //import org.apache.lucene.analysis.Tokenizer;
 //import org.apache.lucene.analysis.core.LetterTokenizer;
-//import org.apache.lucene.analysis.core.SimpleAnalyzer;
+//import org.apache.lucene.analysis.en.StandardAnalyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 //import org.apache.lucene.analysis.standard.ClassicAnalyzer;
 //import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 //import org.apache.lucene.analysis.synonym.SynonymFilter;
@@ -92,7 +93,7 @@ public class RichQuery {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} // Keeping the contents of location_prepositions.txt in memory for easy access.
-		Analyzer analyzer = new EnglishAnalyzer();
+		Analyzer analyzer = new StandardAnalyzer();
 		try {
 			TokenStream stream  = analyzer.tokenStream(null, new StringReader(word));
 			stream.reset();
@@ -111,7 +112,7 @@ public class RichQuery {
 		Map<String,String> richQuery = new HashMap<String,String>();
 		String allquery,token,key,cat="",attr="";
 //		Set<String> categoryPresent,attrPresent;
-		Analyzer analyzer = new EnglishAnalyzer();
+		Analyzer analyzer = new StandardAnalyzer();
 		allquery="";
 		try {
 			TokenStream stream  = analyzer.tokenStream(null, new StringReader(poorQuery));
@@ -134,14 +135,14 @@ public class RichQuery {
 					
 				}
 //				else if(!categoryPresent.isEmpty()){
-				else if(attributes.contains(token)){
+				else if(attributes.contains(token) || attributes.contains(token+"s")){
 					attr+=token+" ";
 //					key = "Attributes";
 //					attr+=setToString(attrPresent);
 //					richQuery.put(key,token);
 				}
 				
-				else if(categories.contains(token)){
+				else if(categories.contains(token) || categories.contains(token+"s")){
 					cat+=token+" ";
 //					key = "Categories";
 //					cat+=setToString(categoryPresent);

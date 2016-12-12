@@ -102,6 +102,12 @@
         height: 20px;
         margin-bottom: 2px;
       }
+      a {
+        color: black;
+      }
+      a:hover{
+        background-color: blue;
+      }
     </style>
    </head>
    <body>
@@ -271,9 +277,9 @@ var jsonGlobalData = "";
   	    	//divElement +=  					 "<img style=\"margin-top:0\" src=\"images/logo.jpg\" alt=\"templatemo home icon 1\" />";
   	    	//divElement += 			      "</div>";
   	    	divElement +=       		  "<div class=\"text\">";
-  	    	divElement +=       		  		"<a href=\"javascript:openNewPage('"+i+"')\"><div class=\"title\" style=\"font-family:serif;color:#4C4CFF\">";
+  	    	divElement +=       		  		"<div class=\"title\" style=\"font-family:serif;color:#4C4CFF\">";
   	    	divElement +=            	   			"<b>"+name+"</b>";
-  	    	divElement +=		         		 "</div></a>";
+  	    	divElement +=		         		 "</div>";
   	    	for(j=0; j < parseInt(stars); j++){
   	    		divElement +=  "<img src=\"images/stars.png\" />";
   	    	}
@@ -282,8 +288,10 @@ var jsonGlobalData = "";
   	    	//divElement +=          		  		 "<img src=\"images/stars.png\" />";
   	    	//divElement +=          		  		 "<img src=\"images/stars.png\" />";
   	    	divElement +=          		  	" "+review_count + " reviews";
-  	    	divElement +=		          		 "<p>"+place.full_address+"</p>";
+          divElement +=                  "<p>"+place.full_address+"</p>";
+  	    	// divElement +=		          		 "<p>"+place.full_address+"</p>";
   	    	divElement +=		          		 "<p> Price Range : "+"$".repeat(place["Price Range"])+"</p>";
+          divElement +=                  "<p><a href=\"javascript:openNewPage('"+i+"')\">More Info.</a></p>";
   	    	divElement +=          		  "</div>";
  	    //	divElement +=   			 "<div  class=\"nav3\">";
   	    	//divElement +=  					 "<img style=\"width:100px;height:100px;\" class=\"images_icon\"  src=\"yelp/_i6oyu8cWLCTJNICHmyqDg.jpg\" alt=\"templatemo home icon 1\" />";
