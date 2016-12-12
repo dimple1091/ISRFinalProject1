@@ -196,7 +196,7 @@ public class SearchEngine extends HttpServlet {
 				 			allQueryBuilder.add(new BooleanClause(allQueryparser.parse(allQueryValue), BooleanClause.Occur.SHOULD));
 				 			//builder.add(new BooleanClause(multiFieldqueryParser.parse(allQueryValue), BooleanClause.Occur.FILTER));
 				 		}
-				 		builder.add(new BooleanClause(allQueryBuilder.build(), BooleanClause.Occur.MUST));
+				 		builder.add(new BooleanClause(allQueryBuilder.build(), BooleanClause.Occur.SHOULD));
 			 		
 				 	}
 				 	else if(queryField.equalsIgnoreCase("address")){
@@ -211,11 +211,12 @@ public class SearchEngine extends HttpServlet {
 				 	else if(queryField.equalsIgnoreCase("categories")){
 				 		BooleanQuery.Builder innerBooleanCatBuilder = new BooleanQuery.Builder();
 				 		String[] categoryValues = queryValue.split(Pattern.quote(" "));
-				 		QueryParser parserCategories = new QueryParser("categories", new StandardAnalyzer());
+				 		QueryParser parserCategories = new QueryParser("categories", new EnglishAnalyzer());
 				 		for(String categoryValue : categoryValues){
-				 			innerBooleanCatBuilder.add(new BooleanClause(parserCategories.parse(categoryValue), BooleanClause.Occur.SHOULD));
+				 			builder.add(new BooleanClause(parserCategories.parse(categoryValue), BooleanClause.Occur.FILTER));
+				 			//innerBooleanCatBuilder.add(new BooleanClause(parserCategories.parse(categoryValue), BooleanClause.Occur.SHOULD));
 				 		}
-				 		builder.add(new BooleanClause(innerBooleanCatBuilder.build(), BooleanClause.Occur.FILTER));
+				 		//builder.add(new BooleanClause(innerBooleanCatBuilder.build(), BooleanClause.Occur.FILTER));
 				 	}
 					else if(queryField.equalsIgnoreCase("neighborhoods")){
 						
