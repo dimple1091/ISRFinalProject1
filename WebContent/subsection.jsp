@@ -117,7 +117,7 @@ var counts="";
 
      function displayReviews(review){
      	var a=review.split("\\n");
-   
+     	//var a = review;
    // 	 console.log(a.length);
      	for(i=0;i<a.length;i++){
     		
@@ -141,7 +141,7 @@ var counts="";
     	
      }
 	function calculateBarChart(a,b,c,d,e){
-		// var t = a+b+c+d+e;
+		 //var t = a+b+c+d+e;
 		var t=1;
 		// console.log(t);
 		var data = [{name:'Very Negative', frequency:a/t}, {name:'Negative', frequency:b/t}, {name:'Neutral', frequency:c/t},
